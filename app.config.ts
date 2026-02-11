@@ -10,4 +10,8 @@ export default defineConfig({
       },
     },
   },
+  solid: {
+    dev: true,
+    hot: true,
+  }
 });

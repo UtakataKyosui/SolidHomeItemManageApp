@@ -1,3 +1,6 @@
+import { text } from "./text";
+import { card } from "./card";
+import { link } from "./link";
 import { radioGroup } from "./radio-group";
 import { field } from "./field";
 import { input } from "./input";
@@ -11,9 +14,14 @@ export const recipes = {
   group,
   absoluteCenter,
   spinner,
-  fieldset,
   input,
-  field,
-  radioGroup
+  link,
+  text
 }
-export const slotRecipes = {}
+
+export const slotRecipes = {
+  card,
+  fieldset,
+  field,
+  radioGroup,
+}

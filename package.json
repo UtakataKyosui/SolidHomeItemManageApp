@@ -3,12 +3,17 @@
   "type": "module",
   "scripts": {
     "prepare": "panda codegen",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio",
     "dev": "vinxi dev",
     "build": "vinxi build",
     "start": "vinxi start"
   },
   "devDependencies": {
     "@pandacss/dev": "^1.8.1",
+    "@solidjs/testing-library": "^0.8.10",
     "@types/better-sqlite3": "^7.6.10",
     "@types/node": "^24.7.0",
     "drizzle-kit": "^0.22.7"
