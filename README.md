@@ -1,36 +1,32 @@
-# Rsbuild project
+# SolidStart
 
-## Setup
+Everything you need to build a Solid project, powered by [`solid-start`](https://start.solidjs.com);
 
-Install the dependencies:
-
-```bash
-bun install
-```
-
-## Get started
-
-Start the dev server, and the app will be available at [http://localhost:3000](http://localhost:3000).
+## Creating a project
 
 ```bash
-bun run dev
+# create a new project in the current directory
+npm init solid@latest
+
+# create a new project in my-app
+npm init solid@latest my-app
 ```
 
-Build the app for production:
+## Developing
+
+Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
 
 ```bash
-bun run build
+npm run dev
+
+# or start the server and open the app in a new browser tab
+npm run dev
 ```
 
-Preview the production build locally:
+## Building
 
-```bash
-bun run preview
-```
+Solid apps are built with _adapters_, which optimise your project for deployment to different environments.
 
-## Learn more
+By default, `npm run build` will generate a Node app that you can run with `npm start`. To use a different adapter, add it to the `devDependencies` in `package.json` and specify in your `app.config.js`.
 
-To learn more about Rsbuild, check out the following resources:
-
-- [Rsbuild documentation](https://rsbuild.rs) - explore Rsbuild features and APIs.
-- [Rsbuild GitHub repository](https://github.com/web-infra-dev/rsbuild) - your feedback and contributions are welcome!
+## This project was created with the [Solid CLI](https://github.com/solidjs-community/solid-cli)

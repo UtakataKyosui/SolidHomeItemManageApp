@@ -1,26 +1,20 @@
 {
   "compilerOptions": {
-    "lib": ["DOM", "ES2020"],
-    "jsx": "preserve",
-    "target": "ES2020",
-    "noEmit": true,
-    "skipLibCheck": true,
-    "jsxImportSource": "solid-js",
-    "useDefineForClassFields": true,
-
-    /* modules */
+    "target": "ESNext",
     "module": "ESNext",
-    "moduleDetection": "force",
     "moduleResolution": "bundler",
-    "verbatimModuleSyntax": true,
-    "resolveJsonModule": true,
-    "allowImportingTsExtensions": true,
-    "noUncheckedSideEffectImports": true,
-
-    /* type checking */
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "jsx": "preserve",
+    "jsxImportSource": "solid-js",
+    "allowJs": true,
     "strict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true
-  },
-  "include": ["src"]
+    "noEmit": true,
+    "types": ["vinxi/types/client", "node"],
+    "isolatedModules": true,
+    "paths": {
+      "~/*": ["./src/*"],
+      "@/*": ["./drizzle/*"]
+    }
+  }
 }
