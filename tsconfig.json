@@ -10,11 +10,22 @@
     "allowJs": true,
     "strict": true,
     "noEmit": true,
-    "types": ["vinxi/types/client", "node"],
+    "types": [
+      "vinxi/types/client",
+      "node"
+    ],
     "isolatedModules": true,
+    "baseUrl": ".",
     "paths": {
-      "~/*": ["./src/*"],
-      "@/*": ["./drizzle/*"]
+      "~/*": [
+        "./src/*"
+      ],
+      "@/*": [
+        "./drizzle/*"
+      ],
+      "styled-system/*": [
+        "./styled-system/*"
+      ]
     }
   }
 }
