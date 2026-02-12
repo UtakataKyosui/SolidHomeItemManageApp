@@ -7,7 +7,7 @@ import { integer, text, sqliteTable } from "drizzle-orm/sqlite-core";
  */
 export const Users = sqliteTable("users", {
   id: integer("id").primaryKey().unique().notNull(),
-  username: text("username").notNull().default(""),
+  username: text("username").notNull().default("").unique(),
   password: text("password").notNull().default(""),
 });
 
@@ -22,7 +22,7 @@ export const Items = sqliteTable("items", {
   description: text("description").notNull().default(""),
   price: integer("price").notNull().default(0),
   quantity: integer("quantity").notNull().default(0),
-  userId: integer("user_id").notNull().default(0),
+  userId: integer("user_id").notNull().references(() => Users.id),
 });
 
 /**
@@ -33,7 +33,7 @@ export const Items = sqliteTable("items", {
 export const ItemCategories = sqliteTable("item_categories", {
   id: integer("id").primaryKey().unique().notNull(),
   name: text("name").notNull().default(""),
-  userId: integer("user_id").notNull().default(0),
+  userId: integer("user_id").notNull().references(() => Users.id),
 });
 
 /**
@@ -43,8 +43,8 @@ export const ItemCategories = sqliteTable("item_categories", {
  */
 export const ItemCategoryRelations = sqliteTable("item_category_relations", {
   id: integer("id").primaryKey().unique().notNull(),
-  itemId: integer("item_id").notNull().default(0),
-  itemCategoryId: integer("item_category_id").notNull().default(0),
+  itemId: integer("item_id").notNull().references(() => Items.id),
+  itemCategoryId: integer("item_category_id").notNull().references(() => ItemCategories.id),
 });
 
 /**
@@ -55,18 +55,7 @@ export const ItemCategoryRelations = sqliteTable("item_category_relations", {
 export const Storage = sqliteTable("storages", {
   id: integer("id").primaryKey().unique().notNull(),
   name: text("name").notNull().default(""),
-  userId: integer("user_id").notNull().default(0),
-});
-
-/**
- * 収納場所リレーション
- * @table storage_relations
- * @description 収納場所リレーション情報
- */
-export const StorageRelations = sqliteTable("storage_relations", {
-  id: integer("id").primaryKey().unique().notNull(),
-  itemId: integer("item_id").notNull().default(0),
-  storageId: integer("storage_id").notNull().default(0),
+  userId: integer("user_id").notNull().references(() => Users.id),
 });
 
 /**
@@ -77,8 +66,8 @@ export const StorageRelations = sqliteTable("storage_relations", {
 export const Boxes = sqliteTable("boxes", {
   id: integer("id").primaryKey().notNull(),
   name: text("name").notNull().default(""),
-  userId: integer("user_id").notNull(),
-  storageId: integer("storage_id").notNull(),
+  userId: integer("user_id").notNull().references(() => Users.id),
+  storageId: integer("storage_id").notNull().references(() => Storage.id),
   isDefault: integer("is_default", { mode: "boolean" }).notNull().default(false),
 });
 
@@ -89,6 +78,6 @@ export const Boxes = sqliteTable("boxes", {
  */
 export const BoxRelations = sqliteTable("box_relations", {
   id: integer("id").primaryKey().notNull(),
-  itemId: integer("item_id").notNull(),
-  boxId: integer("box_id").notNull(),
+  itemId: integer("item_id").notNull().references(() => Items.id),
+  boxId: integer("box_id").notNull().references(() => Boxes.id),
 });
