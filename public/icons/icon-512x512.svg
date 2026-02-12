@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="80" fill="#16a34a"/>
+  <g transform="translate(256,256)">
+    <!-- House shape -->
+    <path d="M0-130 L120-25 L120 110 L-120 110 L-120-25 Z" fill="white" opacity="0.95"/>
+    <path d="M0-130 L-130-25 L0-130 L130-25" fill="none" stroke="white" stroke-width="10"/>
+    <!-- Roof -->
+    <polygon points="0,-145 -145,-25 145,-25" fill="white"/>
+    <!-- Box inside house -->
+    <rect x="-55" y="10" width="110" height="80" rx="8" fill="#16a34a" opacity="0.8"/>
+    <line x1="-55" y1="35" x2="55" y2="35" stroke="white" stroke-width="4"/>
+    <line x1="-12" y1="10" x2="-12" y2="35" stroke="white" stroke-width="4"/>
+    <line x1="12" y1="10" x2="12" y2="35" stroke="white" stroke-width="4"/>
+  </g>
+</svg>
