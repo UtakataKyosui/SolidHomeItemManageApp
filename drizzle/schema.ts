@@ -68,3 +68,27 @@ export const StorageRelations = sqliteTable("storage_relations", {
   itemId: integer("item_id").notNull().default(0),
   storageId: integer("storage_id").notNull().default(0),
 });
+
+/**
+ * ボックス
+ * @table boxes
+ * @description ボックス情報
+ */
+export const Boxes = sqliteTable("boxes", {
+  id: integer("id").primaryKey().notNull(),
+  name: text("name").notNull().default(""),
+  userId: integer("user_id").notNull(),
+  storageId: integer("storage_id").notNull(),
+  isDefault: integer("is_default", { mode: "boolean" }).notNull().default(false),
+});
+
+/**
+ * ボックスリレーション
+ * @table box_relations
+ * @description ボックスリレーション情報
+ */
+export const BoxRelations = sqliteTable("box_relations", {
+  id: integer("id").primaryKey().notNull(),
+  itemId: integer("item_id").notNull(),
+  boxId: integer("box_id").notNull(),
+});

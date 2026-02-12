@@ -1,7 +1,7 @@
 "use server";
 import { eq, desc } from "drizzle-orm";
 import { db } from "../db";
-import { Items, ItemCategories, Storage } from "../../../drizzle/schema";
+import { Items, ItemCategories, Storage, Boxes } from "../../../drizzle/schema";
 import { getUser } from "../server";
 
 export async function getDashboardStats() {
@@ -9,6 +9,7 @@ export async function getDashboardStats() {
   const items = db.select().from(Items).where(eq(Items.userId, user.id)).all();
   const categories = db.select().from(ItemCategories).where(eq(ItemCategories.userId, user.id)).all();
   const storages = db.select().from(Storage).where(eq(Storage.userId, user.id)).all();
+  const boxes = db.select().from(Boxes).where(eq(Boxes.userId, user.id)).all();
   const recentItems = db
     .select()
     .from(Items)
@@ -21,6 +22,7 @@ export async function getDashboardStats() {
     itemCount: items.length,
     categoryCount: categories.length,
     storageCount: storages.length,
+    boxCount: boxes.length,
     recentItems,
   };
 }

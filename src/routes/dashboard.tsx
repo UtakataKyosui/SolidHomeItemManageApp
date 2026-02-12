@@ -5,7 +5,7 @@ import { getUser, logout } from "~/api";
 import { getDashboardStats } from "~/api/dashboard";
 import { Button } from "~/components/ui/button";
 import * as Card from "~/components/ui/card";
-import { Package, FolderOpen, Archive } from "lucide-solid";
+import { Package, FolderOpen, Archive, Box } from "lucide-solid";
 
 export const route = {
   preload() {
@@ -33,7 +33,7 @@ export default function Dashboard() {
         {(s) => (
           <div class={css({ display: "flex", flexDirection: "column", gap: "4" })}>
             {/* 統計カード */}
-            <div class={css({ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "4" })}>
+            <div class={css({ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "4" })}>
               <A href="/items" class={css({ textDecoration: "none" })}>
                 <Card.Root>
                   <Card.Header>
@@ -58,6 +58,20 @@ export default function Dashboard() {
                   </Card.Header>
                   <Card.Body>
                     <p class={css({ textStyle: "3xl", fontWeight: "bold" })}>{s().categoryCount}</p>
+                  </Card.Body>
+                </Card.Root>
+              </A>
+
+              <A href="/boxes" class={css({ textDecoration: "none" })}>
+                <Card.Root>
+                  <Card.Header>
+                    <div class={css({ display: "flex", alignItems: "center", gap: "2" })}>
+                      <Box size={20} />
+                      <Card.Title>ボックス</Card.Title>
+                    </div>
+                  </Card.Header>
+                  <Card.Body>
+                    <p class={css({ textStyle: "3xl", fontWeight: "bold" })}>{s().boxCount}</p>
                   </Card.Body>
                 </Card.Root>
               </A>
