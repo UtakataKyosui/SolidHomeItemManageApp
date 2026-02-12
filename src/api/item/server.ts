@@ -2,7 +2,7 @@
 import { redirect } from "@solidjs/router";
 import { eq, and } from "drizzle-orm";
 import { db } from "../db";
-import { Items, ItemCategoryRelations, StorageRelations } from "../../../drizzle/schema";
+import { Items, ItemCategoryRelations, BoxRelations } from "../../../drizzle/schema";
 import { getUser } from "../server";
 
 export async function getItems() {
@@ -73,7 +73,7 @@ export async function deleteItem(formData: FormData) {
   const id = Number(formData.get("id"));
   // カスケード削除
   db.delete(ItemCategoryRelations).where(eq(ItemCategoryRelations.itemId, id)).run();
-  db.delete(StorageRelations).where(eq(StorageRelations.itemId, id)).run();
+  db.delete(BoxRelations).where(eq(BoxRelations.itemId, id)).run();
   db.delete(Items)
     .where(and(eq(Items.id, id), eq(Items.userId, user.id)))
     .run();
