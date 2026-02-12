@@ -1,31 +1,120 @@
-import { createAsync, type RouteDefinition } from "@solidjs/router";
+import { createAsync, A, type RouteDefinition } from "@solidjs/router";
+import { Show, For } from "solid-js";
 import { css } from "styled-system/css";
 import { getUser, logout } from "~/api";
+import { getDashboardStats } from "~/api/dashboard";
 import { Button } from "~/components/ui/button";
 import * as Card from "~/components/ui/card";
+import { Package, FolderOpen, Archive } from "lucide-solid";
 
 export const route = {
-    preload() {
-        getUser();
-    }
+  preload() {
+    getUser();
+    getDashboardStats();
+  },
 } satisfies RouteDefinition;
 
 export default function Dashboard() {
-    const user = createAsync(async () => getUser(), { deferStream: true });
-    return (
-        <Card.Root class={css({
-            width: "80%",
-            margin: "0 auto",
-        })}>
-            <Card.Header>
-                <Card.Title>Dashboard</Card.Title>
-            </Card.Header>
-            <Card.Body>
-                <p>Hello {user()?.username}</p>
-            </Card.Body>
-            <Card.Footer>
-                <Button onClick={() => logout()}>Logout</Button>
-            </Card.Footer>
-        </Card.Root>
-    )
+  const user = createAsync(() => getUser(), { deferStream: true });
+  const stats = createAsync(() => getDashboardStats());
+
+  return (
+    <div class={css({ width: "80%", margin: "0 auto", py: "6" })}>
+      <div class={css({ display: "flex", justifyContent: "space-between", alignItems: "center", mb: "6" })}>
+        <h1 class={css({ textStyle: "2xl", fontWeight: "bold" })}>
+          ようこそ、{user()?.username} さん
+        </h1>
+        <form action={logout} method="post">
+          <Button type="submit" variant="outline">ログアウト</Button>
+        </form>
+      </div>
+
+      <Show when={stats()}>
+        {(s) => (
+          <div class={css({ display: "flex", flexDirection: "column", gap: "4" })}>
+            {/* 統計カード */}
+            <div class={css({ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "4" })}>
+              <A href="/items" class={css({ textDecoration: "none" })}>
+                <Card.Root>
+                  <Card.Header>
+                    <div class={css({ display: "flex", alignItems: "center", gap: "2" })}>
+                      <Package size={20} />
+                      <Card.Title>アイテム</Card.Title>
+                    </div>
+                  </Card.Header>
+                  <Card.Body>
+                    <p class={css({ textStyle: "3xl", fontWeight: "bold" })}>{s().itemCount}</p>
+                  </Card.Body>
+                </Card.Root>
+              </A>
+
+              <A href="/categories" class={css({ textDecoration: "none" })}>
+                <Card.Root>
+                  <Card.Header>
+                    <div class={css({ display: "flex", alignItems: "center", gap: "2" })}>
+                      <FolderOpen size={20} />
+                      <Card.Title>カテゴリ</Card.Title>
+                    </div>
+                  </Card.Header>
+                  <Card.Body>
+                    <p class={css({ textStyle: "3xl", fontWeight: "bold" })}>{s().categoryCount}</p>
+                  </Card.Body>
+                </Card.Root>
+              </A>
+
+              <A href="/storages" class={css({ textDecoration: "none" })}>
+                <Card.Root>
+                  <Card.Header>
+                    <div class={css({ display: "flex", alignItems: "center", gap: "2" })}>
+                      <Archive size={20} />
+                      <Card.Title>収納場所</Card.Title>
+                    </div>
+                  </Card.Header>
+                  <Card.Body>
+                    <p class={css({ textStyle: "3xl", fontWeight: "bold" })}>{s().storageCount}</p>
+                  </Card.Body>
+                </Card.Root>
+              </A>
+            </div>
+
+            {/* 最近のアイテム */}
+            <Card.Root>
+              <Card.Header>
+                <Card.Title>最近追加されたアイテム</Card.Title>
+              </Card.Header>
+              <Card.Body>
+                <Show
+                  when={s().recentItems.length > 0}
+                  fallback={
+                    <p class={css({ color: "fg.muted", textStyle: "sm" })}>
+                      まだアイテムがありません。
+                      <A href="/items/new" class={css({ textDecoration: "underline", ml: "1" })}>最初のアイテムを追加</A>
+                    </p>
+                  }
+                >
+                  <div class={css({ display: "flex", flexDirection: "column", gap: "2" })}>
+                    <For each={s().recentItems}>
+                      {(item) => (
+                        <A
+                          href={`/items/${item.id}`}
+                          class={css({
+                            display: "flex", justifyContent: "space-between", alignItems: "center",
+                            px: "3", py: "2", borderRadius: "l2", textStyle: "sm",
+                            _hover: { bg: "gray.subtle.bg" },
+                          })}
+                        >
+                          <span class={css({ fontWeight: "medium" })}>{item.name}</span>
+                          <span class={css({ color: "fg.muted" })}>{item.price.toLocaleString()}円 x {item.quantity}</span>
+                        </A>
+                      )}
+                    </For>
+                  </div>
+                </Show>
+              </Card.Body>
+            </Card.Root>
+          </div>
+        )}
+      </Show>
+    </div>
+  );
 }

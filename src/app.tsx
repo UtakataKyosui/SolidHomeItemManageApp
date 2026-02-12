@@ -5,14 +5,14 @@ import { Suspense } from "solid-js";
 import { Link } from "./components/ui/link";
 import "./app.css";
 import { css } from "styled-system/css";
-import { Text } from "./components/ui/text";
+import { LayoutDashboard, Package, FolderOpen, Archive } from "lucide-solid";
 
 export default function App() {
   return (
     <Router
       root={props => (
         <>
-          <nav class={`${css({
+          <nav class={css({
             borderRadius: "8px",
             bgColor: "slate.200",
             borderColor: "slate.100",
@@ -24,23 +24,33 @@ export default function App() {
             display: "flex",
             alignItems: "center",
             gap: "4"
-          })}`}>
+          })}>
             <Link textDecoration="none" href="/" variant="plain" textStyle="xl" fontWeight="bold">
               Initialize Home
             </Link>
             <div class={css({
+              display: "flex",
+              gap: "2",
               "& a": {
                 color: "black",
                 padding: "1",
-                textDecorationLine: "underline",
+                paddingLeft: "2",
+                paddingRight: "2",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "1",
+                textStyle: "sm",
+                textDecorationLine: "none",
+                borderRadius: "l2",
                 "&:hover": {
-                  color: "gray.400",
                   bgColor: "white.a3",
-                  borderRadius: "8px",
                 },
               }
             })}>
-              <Link href="/dashboard">Dashboard</Link>
+              <Link href="/dashboard"><LayoutDashboard size={16} /> ダッシュボード</Link>
+              <Link href="/items"><Package size={16} /> アイテム</Link>
+              <Link href="/categories"><FolderOpen size={16} /> カテゴリ</Link>
+              <Link href="/storages"><Archive size={16} /> 収納場所</Link>
             </div>
           </nav>
           <Suspense>{props.children}</Suspense>
