@@ -21,13 +21,11 @@ export async function getBoxesByStorage(storageId: number) {
 
 export async function getBox(id: number) {
   const user = await getUser();
-  const box = db
+  return db
     .select()
     .from(Boxes)
     .where(and(eq(Boxes.id, id), eq(Boxes.userId, user.id)))
-    .get();
-  if (!box) throw redirect("/boxes");
-  return box;
+    .get() ?? null;
 }
 
 export async function getAllBoxesWithStorage() {

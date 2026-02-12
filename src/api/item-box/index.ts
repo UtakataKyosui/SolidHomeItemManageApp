@@ -1,14 +1,14 @@
 import { action, query } from "@solidjs/router";
 import {
-  getItemBoxes as gIB,
-  getBoxItems as gBI,
-  getStorageBoxesWithItems as gSBWI,
-  assignBox as aB,
-  removeBox as rB,
+  getItemBoxes as getItemBoxesFn,
+  getBoxItems as getBoxItemsFn,
+  getStorageBoxesWithItems as getStorageBoxesWithItemsFn,
+  assignBox as assignBoxFn,
+  removeBox as removeBoxFn,
 } from "./server";
 
-export const getItemBoxes = query(gIB, "itemBoxes");
-export const getBoxItems = query(gBI, "boxItems");
-export const getStorageBoxesWithItems = query(gSBWI, "storageBoxesWithItems");
-export const assignBox = action(aB, "assignBox");
-export const removeBox = action(rB, "removeBox");
+export const getItemBoxes = query(getItemBoxesFn, "itemBoxes");
+export const getBoxItems = query(getBoxItemsFn, "boxItems");
+export const getStorageBoxesWithItems = query(getStorageBoxesWithItemsFn, "storageBoxesWithItems");
+export const assignBox = action(assignBoxFn, "assignBox");
+export const removeBox = action(removeBoxFn, "removeBox");

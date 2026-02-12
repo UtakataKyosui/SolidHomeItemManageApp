@@ -1,18 +1,18 @@
 import { action, query } from "@solidjs/router";
 import {
-  getBoxes as gB,
-  getBoxesByStorage as gBS,
-  getBox as gBi,
-  getAllBoxesWithStorage as gABWS,
-  createBox as cB,
-  updateBox as uB,
-  deleteBox as dB,
+  getBoxes as getBoxesFn,
+  getBoxesByStorage as getBoxesByStorageFn,
+  getBox as getBoxFn,
+  getAllBoxesWithStorage as getAllBoxesWithStorageFn,
+  createBox as createBoxFn,
+  updateBox as updateBoxFn,
+  deleteBox as deleteBoxFn,
 } from "./server";
 
-export const getBoxes = query(gB, "boxes");
-export const getBoxesByStorage = query(gBS, "boxesByStorage");
-export const getBox = query(gBi, "box");
-export const getAllBoxesWithStorage = query(gABWS, "allBoxesWithStorage");
-export const createBox = action(cB, "createBox");
-export const updateBox = action(uB, "updateBox");
-export const deleteBox = action(dB, "deleteBox");
+export const getBoxes = query(getBoxesFn, "boxes");
+export const getBoxesByStorage = query(getBoxesByStorageFn, "boxesByStorage");
+export const getBox = query(getBoxFn, "box");
+export const getAllBoxesWithStorage = query(getAllBoxesWithStorageFn, "allBoxesWithStorage");
+export const createBox = action(createBoxFn, "createBox");
+export const updateBox = action(updateBoxFn, "updateBox");
+export const deleteBox = action(deleteBoxFn, "deleteBox");

@@ -54,7 +54,11 @@ export async function deleteStorage(formData: FormData) {
   const user = await getUser();
   const id = Number(formData.get("id"));
   db.transaction((tx) => {
-    // 関連する Box と BoxRelations もカスケード削除（トランザクション + 一括削除）
+    // 所有権を先に検証
+    const storage = tx.select().from(Storage).where(and(eq(Storage.id, id), eq(Storage.userId, user.id))).get();
+    if (!storage) return;
+
+    // 関連する Box と BoxRelations もカスケード削除（一括削除）
     const boxes = tx.select({ id: Boxes.id }).from(Boxes).where(eq(Boxes.storageId, id)).all();
     if (boxes.length > 0) {
       const boxIds = boxes.map((b) => b.id);

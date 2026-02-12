@@ -72,6 +72,10 @@ export async function deleteItem(formData: FormData) {
   const user = await getUser();
   const id = Number(formData.get("id"));
   db.transaction((tx) => {
+    // 所有権を先に検証
+    const item = tx.select().from(Items).where(and(eq(Items.id, id), eq(Items.userId, user.id))).get();
+    if (!item) return;
+
     // カスケード削除（トランザクションで原子性を保証）
     tx.delete(ItemCategoryRelations).where(eq(ItemCategoryRelations.itemId, id)).run();
     tx.delete(BoxRelations).where(eq(BoxRelations.itemId, id)).run();

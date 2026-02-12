@@ -1,4 +1,4 @@
-import { createAsync, A, useSubmission, type RouteDefinition } from "@solidjs/router";
+import { createAsync, A, type RouteDefinition } from "@solidjs/router";
 import { For, Show } from "solid-js";
 import { css } from "styled-system/css";
 import { getUser } from "~/api";
@@ -19,7 +19,6 @@ export const route = {
 
 export default function BoxList() {
   const boxes = createAsync(() => getAllBoxesWithStorage());
-  const deleting = useSubmission(deleteBox);
 
   return (
     <div class={css({ width: "80%", margin: "0 auto", py: "6" })}>
