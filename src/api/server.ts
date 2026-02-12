@@ -19,19 +19,22 @@ function validatePassword(password: unknown) {
 
 async function login(username: string, password: string) {
   const user = db.select().from(Users).where(eq(Users.username, username)).get();
-  if (!user || password !== user.password) throw new Error("Invalid login");
+  if (!user || !(await Bun.password.verify(password, user.password))) throw new Error("Invalid login");
   return user;
 }
 
 async function register(username: string, password: string) {
   const existingUser = db.select().from(Users).where(eq(Users.username, username)).get();
   if (existingUser) throw new Error("User already exists");
-  return db.insert(Users).values({ username, password }).returning().get();
+  const hashedPassword = await Bun.password.hash(password);
+  return db.insert(Users).values({ username, password: hashedPassword }).returning().get();
 }
 
 function getSession() {
+  const secret = process.env.SESSION_SECRET;
+  if (!secret) throw new Error("SESSION_SECRET environment variable is required");
   return useSession({
-    password: process.env.SESSION_SECRET ?? "areallylongsecretthatyoushouldreplace"
+    password: secret
   });
 }
 
@@ -43,7 +46,7 @@ export async function loginOrRegister(formData: FormData) {
   if (error) return new Error(error);
 
   try {
-    const user = await (loginType !== "login"
+    const user = await (loginType === "register"
       ? register(username, password)
       : login(username, password));
     const session = await getSession();
@@ -67,12 +70,7 @@ export async function getUser() {
   const userId = session.data.userId;
   if (userId === undefined) throw redirect("/login");
 
-  try {
-    const user = db.select().from(Users).where(eq(Users.id, userId)).get();
-    if (!user) throw redirect("/login");
-    return { id: user.id, username: user.username };
-  } catch (e) {
-    if (e instanceof Response) throw e;
-    throw await logout();
-  }
+  const user = db.select().from(Users).where(eq(Users.id, userId)).get();
+  if (!user) await logout();
+  return { id: user.id, username: user.username };
 }

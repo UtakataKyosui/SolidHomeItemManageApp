@@ -48,9 +48,17 @@ export async function updateCategory(formData: FormData) {
 export async function deleteCategory(formData: FormData) {
   const user = await getUser();
   const id = Number(formData.get("id"));
-  db.delete(ItemCategoryRelations).where(eq(ItemCategoryRelations.itemCategoryId, id)).run();
-  db.delete(ItemCategories)
-    .where(and(eq(ItemCategories.id, id), eq(ItemCategories.userId, user.id)))
-    .run();
+  db.transaction((tx) => {
+    const category = tx
+      .select()
+      .from(ItemCategories)
+      .where(and(eq(ItemCategories.id, id), eq(ItemCategories.userId, user.id)))
+      .get();
+    if (!category) return;
+    tx.delete(ItemCategoryRelations).where(eq(ItemCategoryRelations.itemCategoryId, id)).run();
+    tx.delete(ItemCategories)
+      .where(and(eq(ItemCategories.id, id), eq(ItemCategories.userId, user.id)))
+      .run();
+  });
   throw redirect("/categories");
 }
