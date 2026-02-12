@@ -1,3 +1,6 @@
+import { badge } from "./badge";
+import { table } from "./table";
+import { dialog } from "./dialog";
 import { text } from "./text";
 import { card } from "./card";
 import { link } from "./link";
@@ -16,7 +19,8 @@ export const recipes = {
   spinner,
   input,
   link,
-  text
+  text,
+  badge
 }
 
 export const slotRecipes = {
@@ -24,4 +28,6 @@ export const slotRecipes = {
   fieldset,
   field,
   radioGroup,
+  dialog,
+  table,
 }

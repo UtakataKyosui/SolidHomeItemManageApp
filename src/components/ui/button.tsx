@@ -30,9 +30,7 @@ interface ButtonLoadingProps {
 type BaseButtonProps = ComponentProps<typeof BaseButton>
 const BaseButton = styled(ark.button, button)
 
-export interface ButtonProps extends BaseButtonProps, ButtonLoadingProps, ComponentProps<'button'> { }
-
-
+export interface ButtonProps extends BaseButtonProps, ButtonLoadingProps {}
 
 export const Button = (props: ButtonProps) => {
   const propsContext = useButtonPropsContext()
@@ -61,7 +59,7 @@ export const Button = (props: ButtonProps) => {
   )
 }
 
-export interface ButtonGroupProps extends GroupProps, ButtonVariantProps { }
+export interface ButtonGroupProps extends GroupProps, ButtonVariantProps {}
 
 export const ButtonGroup = (props: ButtonGroupProps) => {
   const splitProps = createMemo(() => button.splitVariantProps(props))
