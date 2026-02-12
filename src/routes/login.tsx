@@ -2,7 +2,7 @@ import {
   useSubmission,
   type RouteSectionProps
 } from "@solidjs/router";
-import { Show } from "solid-js";
+import { createSignal, Show } from "solid-js";
 import { css } from "styled-system/css";
 import { loginOrRegister } from "~/api";
 import { Button } from "~/components/ui/button";
@@ -14,6 +14,7 @@ import * as Card from "~/components/ui/card";
 
 export default function Login(props: RouteSectionProps) {
   const loggingIn = useSubmission(loginOrRegister);
+  const [loginType, setLoginType] = createSignal("login");
 
   return (
     <Card.Root class={css({
@@ -28,7 +29,9 @@ export default function Login(props: RouteSectionProps) {
           <input type="hidden" name="redirectTo" value={props.params.redirectTo ?? "/"} />
           <Fieldset.Root>
             <Fieldset.Legend>Login or Register?</Fieldset.Legend>
-            <RadioGroup.Root name="loginType" defaultValue="login" flexDir="row" gap="2" padding="2">
+            <RadioGroup.Root onValueChange={(e) => {
+              setLoginType(e.value as "login" | "register");
+            }} name="loginType" defaultValue="login" flexDir="row" gap="2" padding="2">
               <RadioGroup.Item value="login">
                 <RadioGroup.ItemControl />
                 <RadioGroup.ItemText>Login</RadioGroup.ItemText>
@@ -51,7 +54,7 @@ export default function Login(props: RouteSectionProps) {
           </Field.Root>
         </Card.Body>
         <Card.Footer display="flex" flexDirection="column" >
-          <Button type="submit">Login</Button>
+          <Button type="submit">{loginType() === "login" ? "Login" : "Register"}</Button>
           <Show when={loggingIn.result}>
             <p style={{ color: "red" }} role="alert" id="error-message">
               {loggingIn.result!.message}

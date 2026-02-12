@@ -71,7 +71,8 @@ export async function getUser() {
     const user = db.select().from(Users).where(eq(Users.id, userId)).get();
     if (!user) throw redirect("/login");
     return { id: user.id, username: user.username };
-  } catch {
-    throw logout();
+  } catch (e) {
+    if (e instanceof Response) throw e;
+    throw await logout();
   }
 }
