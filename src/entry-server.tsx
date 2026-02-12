@@ -14,7 +14,7 @@ export default createHandler(() => (
           <meta name="apple-mobile-web-app-title" content="InitHome" />
           <link rel="icon" href="/favicon.ico" />
           <link rel="manifest" href="/manifest.webmanifest" />
-          <link rel="apple-touch-icon" href="/icons/icon-192x192.svg" />
+          {/* apple-touch-icon requires PNG; SVG is ignored by iOS Safari */}
           {assets}
         </head>
         <body>

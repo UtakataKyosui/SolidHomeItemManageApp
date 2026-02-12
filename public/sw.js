@@ -10,23 +10,27 @@ const PRECACHE_URLS = [
 // Install: precache app shell
 self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(PRECACHE_URLS))
+    caches
+      .open(CACHE_NAME)
+      .then((cache) => cache.addAll(PRECACHE_URLS))
+      .then(() => self.skipWaiting())
   );
-  self.skipWaiting();
 });
 
 // Activate: clean up old caches
 self.addEventListener("activate", (event) => {
   event.waitUntil(
-    caches.keys().then((cacheNames) =>
-      Promise.all(
-        cacheNames
-          .filter((name) => name !== CACHE_NAME)
-          .map((name) => caches.delete(name))
+    caches
+      .keys()
+      .then((cacheNames) =>
+        Promise.all(
+          cacheNames
+            .filter((name) => name !== CACHE_NAME)
+            .map((name) => caches.delete(name))
+        )
       )
-    )
+      .then(() => self.clients.claim())
   );
-  self.clients.claim();
 });
 
 // Fetch: network-first strategy with cache fallback
@@ -34,8 +38,12 @@ self.addEventListener("fetch", (event) => {
   // Skip non-GET requests
   if (event.request.method !== "GET") return;
 
-  // Skip API/server action requests
   const url = new URL(event.request.url);
+
+  // Skip cross-origin requests
+  if (url.origin !== self.location.origin) return;
+
+  // Skip API/server action requests
   if (url.pathname.startsWith("/_server")) return;
 
   event.respondWith(
@@ -53,8 +61,17 @@ self.addEventListener("fetch", (event) => {
         return response;
       })
       .catch(() => {
-        // Fallback to cache when offline
-        return caches.match(event.request);
+        return caches.match(event.request).then((cached) => {
+          if (cached) return cached;
+          // For navigation requests, fall back to cached app shell
+          if (event.request.mode === "navigate") {
+            return caches.match("/");
+          }
+          return new Response("Offline", {
+            status: 503,
+            statusText: "Service Unavailable",
+          });
+        });
       })
   );
 });

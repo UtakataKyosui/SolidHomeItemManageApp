@@ -11,7 +11,7 @@ export default defineConfig({
     },
   },
   solid: {
-    dev: true,
-    hot: true,
+    dev: process.env.NODE_ENV !== "production",
+    hot: process.env.NODE_ENV !== "production",
   }
 });
