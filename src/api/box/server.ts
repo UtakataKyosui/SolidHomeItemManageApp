@@ -57,7 +57,7 @@ export async function createBox(formData: FormData) {
     return new Error("収納場所を選択してください");
   }
   db.insert(Boxes)
-    .values({ name: name.trim(), storageId, userId: user.id, isDefault: 0 })
+    .values({ name: name.trim(), storageId, userId: user.id, isDefault: false })
     .run();
   throw redirect("/boxes");
 }
@@ -90,7 +90,7 @@ export async function deleteBox(formData: FormData) {
     .where(and(eq(Boxes.id, id), eq(Boxes.userId, user.id)))
     .get();
   if (!box) throw redirect("/boxes");
-  if (box.isDefault === 1) {
+  if (box.isDefault) {
     return new Error("デフォルトボックスは削除できません");
   }
   // 関連する BoxRelations も削除

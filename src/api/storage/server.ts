@@ -31,7 +31,7 @@ export async function createStorage(formData: FormData) {
   const storageId = Number(result.lastInsertRowid);
   // デフォルトBoxを自動作成
   db.insert(Boxes)
-    .values({ name: "デフォルト", storageId, userId: user.id, isDefault: 1 })
+    .values({ name: "デフォルト", storageId, userId: user.id, isDefault: true })
     .run();
   throw redirect("/storages");
 }

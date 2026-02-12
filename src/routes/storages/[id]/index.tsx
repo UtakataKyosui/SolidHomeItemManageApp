@@ -50,7 +50,7 @@ export default function StorageDetail() {
                             {box.name}
                           </A>
                         </Card.Title>
-                        <Show when={box.isDefault === 1}>
+                        <Show when={box.isDefault}>
                           <Badge variant="surface" size="sm">デフォルト</Badge>
                         </Show>
                       </div>

@@ -55,7 +55,7 @@ export default function BoxList() {
                       <A href={`/boxes/${box.id}`} class={css({ textDecoration: "underline", _hover: { color: "fg.muted" } })}>
                         {box.name}
                       </A>
-                      <Show when={box.isDefault === 1}>
+                      <Show when={box.isDefault}>
                         <Badge variant="surface" size="sm">デフォルト</Badge>
                       </Show>
                     </div>
@@ -70,7 +70,7 @@ export default function BoxList() {
                       <IconButton asChild={(props) => <A {...props()} />} href={`/boxes/${box.id}/edit`} variant="outline" size="sm">
                         <Pencil size={14} />
                       </IconButton>
-                      <Show when={box.isDefault !== 1}>
+                      <Show when={!box.isDefault}>
                         <Dialog.Root>
                           <Dialog.Trigger asChild={(props) => (
                             <IconButton {...props()} variant="outline" size="sm" colorPalette="red">

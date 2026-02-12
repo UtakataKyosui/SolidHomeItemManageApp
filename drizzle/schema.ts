@@ -79,7 +79,7 @@ export const Boxes = sqliteTable("boxes", {
   name: text("name").notNull().default(""),
   userId: integer("user_id").notNull().default(0),
   storageId: integer("storage_id").notNull().default(0),
-  isDefault: integer("is_default").notNull().default(0),
+  isDefault: integer("is_default", { mode: "boolean" }).notNull().default(false),
 });
 
 /**
