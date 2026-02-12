@@ -1,6 +1,6 @@
 "use server";
 import { redirect } from "@solidjs/router";
-import { eq, and } from "drizzle-orm";
+import { eq, and, inArray } from "drizzle-orm";
 import { db } from "../db";
 import { Storage, Boxes, BoxRelations } from "../../../drizzle/schema";
 import { getUser } from "../server";
@@ -53,14 +53,17 @@ export async function updateStorage(formData: FormData) {
 export async function deleteStorage(formData: FormData) {
   const user = await getUser();
   const id = Number(formData.get("id"));
-  // 関連する Box と BoxRelations もカスケード削除
-  const boxes = db.select().from(Boxes).where(eq(Boxes.storageId, id)).all();
-  for (const box of boxes) {
-    db.delete(BoxRelations).where(eq(BoxRelations.boxId, box.id)).run();
-  }
-  db.delete(Boxes).where(eq(Boxes.storageId, id)).run();
-  db.delete(Storage)
-    .where(and(eq(Storage.id, id), eq(Storage.userId, user.id)))
-    .run();
+  db.transaction((tx) => {
+    // 関連する Box と BoxRelations もカスケード削除（トランザクション + 一括削除）
+    const boxes = tx.select({ id: Boxes.id }).from(Boxes).where(eq(Boxes.storageId, id)).all();
+    if (boxes.length > 0) {
+      const boxIds = boxes.map((b) => b.id);
+      tx.delete(BoxRelations).where(inArray(BoxRelations.boxId, boxIds)).run();
+      tx.delete(Boxes).where(eq(Boxes.storageId, id)).run();
+    }
+    tx.delete(Storage)
+      .where(and(eq(Storage.id, id), eq(Storage.userId, user.id)))
+      .run();
+  });
   throw redirect("/storages");
 }
