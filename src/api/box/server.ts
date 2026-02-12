@@ -56,6 +56,15 @@ export async function createBox(formData: FormData) {
   if (!storageId) {
     return new Error("収納場所を選択してください");
   }
+  // storageIdがユーザー所有であることを検証
+  const storage = db
+    .select()
+    .from(Storage)
+    .where(and(eq(Storage.id, storageId), eq(Storage.userId, user.id)))
+    .get();
+  if (!storage) {
+    return new Error("指定された収納場所が見つかりません");
+  }
   db.insert(Boxes)
     .values({ name: name.trim(), storageId, userId: user.id, isDefault: false })
     .run();
@@ -72,6 +81,15 @@ export async function updateBox(formData: FormData) {
   }
   if (!storageId) {
     return new Error("収納場所を選択してください");
+  }
+  // storageIdがユーザー所有であることを検証
+  const storage = db
+    .select()
+    .from(Storage)
+    .where(and(eq(Storage.id, storageId), eq(Storage.userId, user.id)))
+    .get();
+  if (!storage) {
+    return new Error("指定された収納場所が見つかりません");
   }
   db.update(Boxes)
     .set({ name: name.trim(), storageId })
@@ -93,10 +111,12 @@ export async function deleteBox(formData: FormData) {
   if (box.isDefault) {
     return new Error("デフォルトボックスは削除できません");
   }
-  // 関連する BoxRelations も削除
-  db.delete(BoxRelations).where(eq(BoxRelations.boxId, id)).run();
-  db.delete(Boxes)
-    .where(and(eq(Boxes.id, id), eq(Boxes.userId, user.id)))
-    .run();
+  // トランザクションで関連データを一括削除
+  db.transaction((tx) => {
+    tx.delete(BoxRelations).where(eq(BoxRelations.boxId, id)).run();
+    tx.delete(Boxes)
+      .where(and(eq(Boxes.id, id), eq(Boxes.userId, user.id)))
+      .run();
+  });
   throw redirect("/boxes");
 }
