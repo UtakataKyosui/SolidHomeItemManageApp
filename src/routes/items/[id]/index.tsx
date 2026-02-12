@@ -41,7 +41,7 @@ export default function ItemDetail() {
   };
 
   return (
-    <div class={css({ width: "80%", margin: "0 auto", py: "6" })}>
+    <div class={css({ width: { base: "95%", md: "80%" }, margin: "0 auto", py: "6" })}>
       <Show when={item()}>
         {(i) => (
           <>
@@ -59,7 +59,7 @@ export default function ItemDetail() {
                   <Card.Title>基本情報</Card.Title>
                 </Card.Header>
                 <Card.Body>
-                  <dl class={css({ display: "grid", gridTemplateColumns: "120px 1fr", gap: "2", textStyle: "sm" })}>
+                  <dl class={css({ display: "grid", gridTemplateColumns: { base: "1fr", md: "120px 1fr" }, gap: "2", textStyle: "sm" })}>
                     <dt class={css({ color: "fg.muted", fontWeight: "medium" })}>名前</dt>
                     <dd>{i().name}</dd>
                     <dt class={css({ color: "fg.muted", fontWeight: "medium" })}>説明</dt>
@@ -101,7 +101,7 @@ export default function ItemDetail() {
                     </For>
                   </div>
                   <Show when={availableCategories().length > 0}>
-                    <form action={assignCategory} method="post" class={css({ display: "flex", gap: "2", alignItems: "end" })}>
+                    <form action={assignCategory} method="post" class={css({ display: "flex", flexDirection: { base: "column", md: "row" }, gap: "2", alignItems: { base: "stretch", md: "end" } })}>
                       <input type="hidden" name="itemId" value={i().id} />
                       <select
                         name="categoryId"
@@ -109,7 +109,7 @@ export default function ItemDetail() {
                         onChange={(e) => setSelectedCategoryId(e.target.value)}
                         class={css({
                           borderWidth: "1px", borderRadius: "l2", px: "3", py: "2",
-                          textStyle: "sm", bg: "transparent", cursor: "pointer",
+                          textStyle: "sm", bg: "transparent", cursor: "pointer", flex: "1",
                         })}
                       >
                         <option value="">カテゴリを選択...</option>
@@ -154,7 +154,7 @@ export default function ItemDetail() {
                     </For>
                   </div>
                   <Show when={availableBoxes().length > 0}>
-                    <form action={assignBox} method="post" class={css({ display: "flex", gap: "2", alignItems: "end" })}>
+                    <form action={assignBox} method="post" class={css({ display: "flex", flexDirection: { base: "column", md: "row" }, gap: "2", alignItems: { base: "stretch", md: "end" } })}>
                       <input type="hidden" name="itemId" value={i().id} />
                       <select
                         name="boxId"
@@ -162,7 +162,7 @@ export default function ItemDetail() {
                         onChange={(e) => setSelectedBoxId(e.target.value)}
                         class={css({
                           borderWidth: "1px", borderRadius: "l2", px: "3", py: "2",
-                          textStyle: "sm", bg: "transparent", cursor: "pointer",
+                          textStyle: "sm", bg: "transparent", cursor: "pointer", flex: "1",
                         })}
                       >
                         <option value="">ボックスを選択...</option>

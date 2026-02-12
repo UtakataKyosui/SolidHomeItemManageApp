@@ -19,7 +19,7 @@ export default function Dashboard() {
   const stats = createAsync(() => getDashboardStats());
 
   return (
-    <div class={css({ width: "80%", margin: "0 auto", py: "6" })}>
+    <div class={css({ width: { base: "95%", md: "80%" }, margin: "0 auto", py: "6" })}>
       <div class={css({ display: "flex", justifyContent: "space-between", alignItems: "center", mb: "6" })}>
         <h1 class={css({ textStyle: "2xl", fontWeight: "bold" })}>
           ようこそ、{user()?.username} さん
@@ -33,7 +33,7 @@ export default function Dashboard() {
         {(s) => (
           <div class={css({ display: "flex", flexDirection: "column", gap: "4" })}>
             {/* 統計カード */}
-            <div class={css({ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "4" })}>
+            <div class={css({ display: "grid", gridTemplateColumns: { base: "repeat(2, 1fr)", md: "repeat(4, 1fr)" }, gap: "4" })}>
               <A href="/items" class={css({ textDecoration: "none" })}>
                 <Card.Root>
                   <Card.Header>

@@ -21,7 +21,7 @@ export default function CategoryDetail() {
   const items = createAsync(() => getCategoryItems(Number(params.id)));
 
   return (
-    <div class={css({ width: "80%", margin: "0 auto", py: "6" })}>
+    <div class={css({ width: { base: "95%", md: "80%" }, margin: "0 auto", py: "6" })}>
       <Show when={category()}>
         {(c) => (
           <>
@@ -43,32 +43,34 @@ export default function CategoryDetail() {
                     <p class={css({ color: "fg.muted", textStyle: "sm" })}>このカテゴリにはアイテムがありません。</p>
                   }
                 >
-                  <Table.Root>
-                    <Table.Head>
-                      <Table.Row>
-                        <Table.Header>名前</Table.Header>
-                        <Table.Header>説明</Table.Header>
-                        <Table.Header>価格</Table.Header>
-                        <Table.Header>数量</Table.Header>
-                      </Table.Row>
-                    </Table.Head>
-                    <Table.Body>
-                      <For each={items()}>
-                        {(item) => (
-                          <Table.Row>
-                            <Table.Cell>
-                              <A href={`/items/${item.itemId}`} class={css({ textDecoration: "underline", _hover: { color: "fg.muted" } })}>
-                                {item.itemName}
-                              </A>
-                            </Table.Cell>
-                            <Table.Cell>{item.itemDescription}</Table.Cell>
-                            <Table.Cell>{item.itemPrice.toLocaleString()}円</Table.Cell>
-                            <Table.Cell>{item.itemQuantity}</Table.Cell>
-                          </Table.Row>
-                        )}
-                      </For>
-                    </Table.Body>
-                  </Table.Root>
+                  <div class={css({ overflowX: "auto" })}>
+                    <Table.Root>
+                      <Table.Head>
+                        <Table.Row>
+                          <Table.Header>名前</Table.Header>
+                          <Table.Header>説明</Table.Header>
+                          <Table.Header>価格</Table.Header>
+                          <Table.Header>数量</Table.Header>
+                        </Table.Row>
+                      </Table.Head>
+                      <Table.Body>
+                        <For each={items()}>
+                          {(item) => (
+                            <Table.Row>
+                              <Table.Cell>
+                                <A href={`/items/${item.itemId}`} class={css({ textDecoration: "underline", _hover: { color: "fg.muted" } })}>
+                                  {item.itemName}
+                                </A>
+                              </Table.Cell>
+                              <Table.Cell>{item.itemDescription}</Table.Cell>
+                              <Table.Cell>{item.itemPrice.toLocaleString()}円</Table.Cell>
+                              <Table.Cell>{item.itemQuantity}</Table.Cell>
+                            </Table.Row>
+                          )}
+                        </For>
+                      </Table.Body>
+                    </Table.Root>
+                  </div>
                 </Show>
               </Card.Body>
             </Card.Root>

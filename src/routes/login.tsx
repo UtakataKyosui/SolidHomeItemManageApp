@@ -18,7 +18,7 @@ export default function Login(props: RouteSectionProps) {
 
   return (
     <Card.Root class={css({
-      width: "80%",
+      width: { base: "95%", md: "80%" },
       margin: "0 auto",
     })}>
       <form action={loginOrRegister} method="post" aria-describedby={loggingIn.result instanceof Error ? "error-message" : undefined}>
