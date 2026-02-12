@@ -71,11 +71,13 @@ export async function updateItem(formData: FormData) {
 export async function deleteItem(formData: FormData) {
   const user = await getUser();
   const id = Number(formData.get("id"));
-  // カスケード削除
-  db.delete(ItemCategoryRelations).where(eq(ItemCategoryRelations.itemId, id)).run();
-  db.delete(BoxRelations).where(eq(BoxRelations.itemId, id)).run();
-  db.delete(Items)
-    .where(and(eq(Items.id, id), eq(Items.userId, user.id)))
-    .run();
+  db.transaction((tx) => {
+    // カスケード削除（トランザクションで原子性を保証）
+    tx.delete(ItemCategoryRelations).where(eq(ItemCategoryRelations.itemId, id)).run();
+    tx.delete(BoxRelations).where(eq(BoxRelations.itemId, id)).run();
+    tx.delete(Items)
+      .where(and(eq(Items.id, id), eq(Items.userId, user.id)))
+      .run();
+  });
   throw redirect("/items");
 }
