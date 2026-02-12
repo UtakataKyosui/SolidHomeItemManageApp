@@ -5,7 +5,7 @@ import { Suspense } from "solid-js";
 import { Link } from "./components/ui/link";
 import "./app.css";
 import { css } from "styled-system/css";
-import { LayoutDashboard, Package, FolderOpen, Archive } from "lucide-solid";
+import { LayoutDashboard, Package, FolderOpen, Archive, Box } from "lucide-solid";
 
 export default function App() {
   return (
@@ -50,6 +50,7 @@ export default function App() {
               <Link href="/dashboard"><LayoutDashboard size={16} /> ダッシュボード</Link>
               <Link href="/items"><Package size={16} /> アイテム</Link>
               <Link href="/categories"><FolderOpen size={16} /> カテゴリ</Link>
+              <Link href="/boxes"><Box size={16} /> ボックス</Link>
               <Link href="/storages"><Archive size={16} /> 収納場所</Link>
             </div>
           </nav>
