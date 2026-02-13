@@ -1,5 +1,5 @@
 import { useSubmission } from "@solidjs/router";
-import { Show, type JSX } from "solid-js";
+import { Show, type JSX, createSignal, onMount } from "solid-js";
 import { Button } from "~/components/ui/button";
 import * as Field from "~/components/ui/field";
 import * as Card from "~/components/ui/card";
@@ -9,11 +9,70 @@ import { css } from "styled-system/css";
 type ItemFormProps = {
   action: JSX.SerializableAttributeValue;
   submitLabel: string;
-  initial?: { id: number; name: string; description: string; price: number; quantity: number };
+  initial?: { id: number; name: string; description: string; price: number; quantity: number; image?: string | null };
   submission: ReturnType<typeof useSubmission>;
 };
 
 export function ItemForm(props: ItemFormProps) {
+  const [imagePreview, setImagePreview] = createSignal(props.initial?.image ?? "");
+  const [imageBase64, setImageBase64] = createSignal(props.initial?.image ?? "");
+  const [isCompressing, setIsCompressing] = createSignal(false);
+
+  const handleFileChange = async (event: Event) => {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
+
+    const file = input.files[0];
+    setIsCompressing(true);
+
+    try {
+      // Dynamic import to avoid SSR issues with WASM
+      const photon = await import("@silvia-odwyer/photon");
+
+      const reader = new FileReader();
+      reader.onload = function () {
+        const base64 = reader.result as string;
+        const base64Data = base64.split(",")[1];
+
+        // Convert base64 to Uint8Array for Photon
+        const binaryString = atob(base64Data);
+        const len = binaryString.length;
+        const bytes = new Uint8Array(len);
+        for (let i = 0; i < len; i++) {
+          bytes[i] = binaryString.charCodeAt(i);
+        }
+
+        const pImage = photon.PhotonImage.new_from_byteslice(bytes);
+
+        // Resize if too large (e.g., max width 800px)
+        if (pImage.get_width() > 800) {
+          const newHeight = (800 / pImage.get_width()) * pImage.get_height();
+          const resized = photon.resize(pImage, 800, newHeight, photon.SamplingFilter.Lanczos3);
+          // Replace original pImage with resized one - wait, resize returns new image or modifies?
+          // Photon's resize returns a new PhotonImage
+          // pImage.free(); // Free old one?
+          // Actually resize returns a new PhotonImage
+          // Let's use the resized image
+          const base64Resized = resized.get_base64();
+          setImagePreview(base64Resized);
+          setImageBase64(base64Resized);
+          resized.free();
+        } else {
+          const base64Original = pImage.get_base64();
+          setImagePreview(base64Original);
+          setImageBase64(base64Original);
+        }
+        pImage.free();
+        setIsCompressing(false);
+      };
+      reader.readAsDataURL(file);
+
+    } catch (e) {
+      console.error("WASM Error:", e);
+      setIsCompressing(false);
+    }
+  };
+
   return (
     <Card.Root class={css({ width: "80%", margin: "0 auto" })}>
       <form action={props.action} method="post" aria-describedby={props.submission.result ? "error-message" : undefined}>
@@ -32,6 +91,24 @@ export function ItemForm(props: ItemFormProps) {
               <Input name="name" placeholder="例: 掃除機" value={props.initial?.name ?? ""} />
             </Field.Root>
             <Field.Root>
+              <Field.Label>画像 (WASM Compressed)</Field.Label>
+              <div class={css({ display: "flex", alignItems: "center", gap: "4" })}>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileChange}
+                  class={css({ textStyle: "sm" })}
+                />
+                <Show when={isCompressing()}>
+                  <span class={css({ textStyle: "sm", color: "fg.muted" })}>Compressing...</span>
+                </Show>
+              </div>
+              <input type="hidden" name="image" value={imageBase64()} />
+              <Show when={imagePreview()}>
+                <img src={imagePreview()} alt="Preview" class={css({ maxHeight: "150px", borderRadius: "md", mt: "2", border: "1px solid token(colors.border.default)" })} />
+              </Show>
+            </Field.Root>
+            <Field.Root>
               <Field.Label>説明</Field.Label>
               <Input name="description" placeholder="例: コードレスタイプ" value={props.initial?.description ?? ""} />
             </Field.Root>
@@ -48,7 +125,7 @@ export function ItemForm(props: ItemFormProps) {
           </div>
         </Card.Body>
         <Card.Footer>
-          <Button type="submit">{props.submitLabel}</Button>
+          <Button type="submit" disabled={isCompressing()}>{props.submitLabel}</Button>
           <Show when={props.submission.result}>
             <p style={{ color: "red" }} role="alert" id="error-message">
               {(props.submission.result as Error)!.message}

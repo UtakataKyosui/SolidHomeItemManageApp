@@ -20,6 +20,7 @@
   },
   "dependencies": {
     "@ark-ui/solid": "^5.31.0",
+    "@silvia-odwyer/photon": "^0.3.3",
     "@solidjs/router": "^0.15.0",
     "@solidjs/start": "^1.1.0",
     "better-sqlite3": "^11.0.0",

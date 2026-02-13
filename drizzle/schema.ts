@@ -22,6 +22,7 @@ export const Items = sqliteTable("items", {
   description: text("description").notNull().default(""),
   price: integer("price").notNull().default(0),
   quantity: integer("quantity").notNull().default(0),
+  image: text("image"),
   userId: integer("user_id").notNull().references(() => Users.id),
 });
 
