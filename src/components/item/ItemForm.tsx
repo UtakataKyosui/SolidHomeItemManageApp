@@ -54,7 +54,6 @@ export function ItemForm(props: ItemFormProps) {
       setIsCompressing(false);
     }
   };
-
   return (
     <Card.Root class={css({ width: "80%", margin: "0 auto" })}>
       <form action={props.action} method="post" aria-describedby={props.submission.result ? "error-message" : undefined}>
