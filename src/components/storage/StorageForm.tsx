@@ -16,7 +16,7 @@ type StorageFormProps = {
 export function StorageForm(props: StorageFormProps) {
   return (
     <Card.Root class={css({ width: "80%", margin: "0 auto" })}>
-      <form action={props.action} method="post">
+      <form action={props.action} method="post" aria-describedby={props.submission.result ? "error-message" : undefined}>
         <Card.Header>
           <Card.Title>
             {props.initial ? "収納場所を編集" : "収納場所を追加"}
@@ -38,8 +38,8 @@ export function StorageForm(props: StorageFormProps) {
         <Card.Footer>
           <Button type="submit">{props.submitLabel}</Button>
           <Show when={props.submission.result}>
-            <p style={{ color: "red" }} role="alert">
-              {props.submission.result!.message}
+            <p style={{ color: "red" }} role="alert" id="error-message">
+              {(props.submission.result as Error)!.message}
             </p>
           </Show>
         </Card.Footer>

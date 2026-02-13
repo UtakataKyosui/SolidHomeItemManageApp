@@ -16,7 +16,7 @@ type ItemFormProps = {
 export function ItemForm(props: ItemFormProps) {
   return (
     <Card.Root class={css({ width: "80%", margin: "0 auto" })}>
-      <form action={props.action} method="post">
+      <form action={props.action} method="post" aria-describedby={props.submission.result ? "error-message" : undefined}>
         <Card.Header>
           <Card.Title>
             {props.initial ? "アイテムを編集" : "アイテムを追加"}
@@ -50,8 +50,8 @@ export function ItemForm(props: ItemFormProps) {
         <Card.Footer>
           <Button type="submit">{props.submitLabel}</Button>
           <Show when={props.submission.result}>
-            <p style={{ color: "red" }} role="alert">
-              {props.submission.result!.message}
+            <p style={{ color: "red" }} role="alert" id="error-message">
+              {(props.submission.result as Error)!.message}
             </p>
           </Show>
         </Card.Footer>

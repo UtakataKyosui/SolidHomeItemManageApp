@@ -38,9 +38,12 @@ export default function App() {
             <Link textDecoration="none" href="/" variant="plain" textStyle="xl" fontWeight="bold">
               Initialize Home
             </Link>
-            <div class={css({
+            <ul class={css({
               display: "flex",
               gap: "2",
+              margin: 0,
+              padding: 0,
+              listStyle: "none",
               "& a": {
                 color: "fg.default",
                 padding: "1",
@@ -57,12 +60,12 @@ export default function App() {
                 },
               }
             })}>
-              <Link href="/dashboard"><LayoutDashboard size={16} /> ダッシュボード</Link>
-              <Link href="/items"><Package size={16} /> アイテム</Link>
-              <Link href="/categories"><FolderOpen size={16} /> カテゴリ</Link>
-              <Link href="/boxes"><Box size={16} /> ボックス</Link>
-              <Link href="/storages"><Archive size={16} /> 収納場所</Link>
-            </div>
+              <li><Link href="/dashboard"><LayoutDashboard size={16} /> ダッシュボード</Link></li>
+              <li><Link href="/items"><Package size={16} /> アイテム</Link></li>
+              <li><Link href="/categories"><FolderOpen size={16} /> カテゴリ</Link></li>
+              <li><Link href="/boxes"><Box size={16} /> ボックス</Link></li>
+              <li><Link href="/storages"><Archive size={16} /> 収納場所</Link></li>
+            </ul>
             <ThemeToggle />
           </nav>
           <Suspense>{props.children}</Suspense>
