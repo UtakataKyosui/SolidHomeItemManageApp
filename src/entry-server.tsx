@@ -15,6 +15,23 @@ export default createHandler(() => (
           <link rel="icon" href="/favicon.ico" />
           <link rel="manifest" href="/manifest.webmanifest" />
           {/* apple-touch-icon requires PNG; SVG is ignored by iOS Safari */}
+          <script innerHTML={`
+            (function() {
+              try {
+                var localValue = localStorage.getItem('theme');
+                var systemDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                if (localValue === 'dark' || (!localValue && systemDarkMode)) {
+                  document.documentElement.classList.add('dark');
+                  document.documentElement.style.colorScheme = 'dark';
+                  document.documentElement.dataset.theme = 'dark';
+                } else {
+                  document.documentElement.classList.add('light');
+                  document.documentElement.style.colorScheme = 'light';
+                  document.documentElement.dataset.theme = 'light';
+                }
+              } catch (e) {}
+            })()
+          `} />
           {assets}
         </head>
         <body>
