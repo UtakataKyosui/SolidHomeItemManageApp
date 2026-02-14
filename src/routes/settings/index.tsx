@@ -1,4 +1,4 @@
-import { createAsync, useSubmission, type RouteDefinition } from "@solidjs/router";
+import { createAsync, type RouteDefinition, useSubmission } from "@solidjs/router";
 import { createSignal, Show } from "solid-js";
 import { css } from "styled-system/css";
 import { getUser, updateUser } from "~/api/server";
@@ -15,28 +15,8 @@ export const route = {
 
 export default function Settings() {
     const user = createAsync(() => getUser());
+    const submitting = useSubmission(updateUser);
 
-    const [pending, setPending] = createSignal(false);
-    const [error, setError] = createSignal<string | null>(null);
-
-    const handleSubmit = async (e: Event) => {
-        e.preventDefault();
-        setPending(true);
-        setError(null);
-        const formData = new FormData(e.target as HTMLFormElement);
-        try {
-            const result = await updateUser(formData);
-            if (result instanceof Error) {
-                setError(result.message);
-            }
-        } catch (err) {
-            // リダイレクトや予期せぬエラー
-            // リダイレクトの場合はRouterが処理するはずだが、throwされたものをキャッチしてしまった場合のために再スロー
-            throw err;
-        } finally {
-            setPending(false);
-        }
-    };
 
     return (
         <PageContainer>
@@ -56,7 +36,9 @@ export default function Settings() {
                 })}>
                     <h2 class={css({ textStyle: "lg", fontWeight: "bold", mb: 4 })}>プロフィール</h2>
 
-                    <form onSubmit={handleSubmit} class={css({ spaceY: 6 })}>
+                    <h2 class={css({ textStyle: "lg", fontWeight: "bold", mb: 4 })}>プロフィール</h2>
+
+                    <form action={updateUser} method="post" class={css({ spaceY: 6 })}>
                         <Field.Root>
                             <Field.Label>ユーザー名</Field.Label>
                             <Input
@@ -70,16 +52,16 @@ export default function Settings() {
                                 アプリケーション内で表示される表示名です。
                             </Field.HelperText>
 
-                            {error() && (
+                            <Show when={(submitting.result as any) instanceof Error}>
                                 <Field.ErrorText class={css({ color: "red.500", display: "block", mt: 1 })}>
-                                    {error()}
+                                    {((submitting.result as any) as Error).message}
                                 </Field.ErrorText>
-                            )}
+                            </Show>
                         </Field.Root>
 
                         <div class={css({ display: "flex", justifyContent: "flex-end" })}>
-                            <Button type="submit" disabled={pending()}>
-                                {pending() ? "保存中..." : "変更を保存"}
+                            <Button type="submit" disabled={submitting.pending}>
+                                {submitting.pending ? "保存中..." : "変更を保存"}
                             </Button>
                         </div>
                     </form>

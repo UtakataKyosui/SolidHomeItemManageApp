@@ -57,13 +57,20 @@ const STORAGE_KEYS = {
     STORAGES: "app_storages",
     BOXES: "app_boxes",
     BOX_RELATIONS: "app_box_relations",
+    SESSION: "app_session",
+    SEQUENCE: "app_sequence",
 } as const;
 
 class StorageClient {
     private getItem<T>(key: string): T[] {
         if (isServer) return [];
         const data = localStorage.getItem(key);
-        return data ? JSON.parse(data) : [];
+        try {
+            return data ? JSON.parse(data) : [];
+        } catch (e) {
+            console.error(`Failed to parse storage key ${key}`, e);
+            return [];
+        }
     }
 
     private setItem<T>(key: string, data: T[]) {
@@ -71,9 +78,51 @@ class StorageClient {
         localStorage.setItem(key, JSON.stringify(data));
     }
 
-    // ID生成 (簡易版: 現在時刻 + ランダム)
+    // ID生成 (堅牢性向上)
     generateId(): number {
-        return Date.now() + Math.floor(Math.random() * 1000);
+        if (isServer) return 0;
+
+        // 保存されているシーケンス番号を取得
+        let currentSequence = Number(localStorage.getItem(STORAGE_KEYS.SEQUENCE)) || 0;
+
+        // 全エンティティのIDをスキャンして最大値を見つける (シーケンス不整合対策)
+        const allIds = [
+            ...this.getUsers().map(u => u.id),
+            ...this.getItems().map(i => i.id),
+            ...this.getItemCategories().map(c => c.id),
+            ...this.getItemCategoryRelations().map(r => r.id),
+            ...this.getStorages().map(s => s.id),
+            ...this.getBoxes().map(b => b.id),
+            ...this.getBoxRelations().map(r => r.id),
+        ];
+
+        const maxExistingId = allIds.length > 0 ? Math.max(...allIds) : 0;
+
+        // シーケンス番号が実際の最大IDより小さい場合は更新する
+        if (currentSequence < maxExistingId) {
+            currentSequence = maxExistingId;
+        }
+
+        const next = currentSequence + 1;
+        localStorage.setItem(STORAGE_KEYS.SEQUENCE, String(next));
+        return next;
+    }
+
+    // Session
+    setSession(userId: number) {
+        if (isServer) return;
+        localStorage.setItem(STORAGE_KEYS.SESSION, String(userId));
+    }
+
+    getSession(): number | null {
+        if (isServer) return null;
+        const id = localStorage.getItem(STORAGE_KEYS.SESSION);
+        return id ? Number(id) : null;
+    }
+
+    clearSession() {
+        if (isServer) return;
+        localStorage.removeItem(STORAGE_KEYS.SESSION);
     }
 
     // Users
