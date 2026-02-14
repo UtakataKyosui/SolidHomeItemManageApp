@@ -42,9 +42,9 @@ export default function ItemList() {
             <Table.Head>
               <Table.Row>
                 <Table.Header>名前</Table.Header>
-                <Table.Header>説明</Table.Header>
-                <Table.Header>価格</Table.Header>
-                <Table.Header>数量</Table.Header>
+                <Table.Header class={css({ display: { base: "none", md: "table-cell" } })}>説明</Table.Header>
+                <Table.Header class={css({ display: { base: "none", md: "table-cell" } })}>価格</Table.Header>
+                <Table.Header class={css({ display: { base: "none", md: "table-cell" } })}>数量</Table.Header>
                 <Table.Header width="150px">操作</Table.Header>
               </Table.Row>
             </Table.Head>
@@ -57,9 +57,9 @@ export default function ItemList() {
                         {item.name}
                       </A>
                     </Table.Cell>
-                    <Table.Cell>{item.description}</Table.Cell>
-                    <Table.Cell>{item.price.toLocaleString()}円</Table.Cell>
-                    <Table.Cell>{item.quantity}</Table.Cell>
+                    <Table.Cell class={css({ display: { base: "none", md: "table-cell" } })}>{item.description}</Table.Cell>
+                    <Table.Cell class={css({ display: { base: "none", md: "table-cell" } })}>{item.price.toLocaleString()}円</Table.Cell>
+                    <Table.Cell class={css({ display: { base: "none", md: "table-cell" } })}>{item.quantity}</Table.Cell>
                     <Table.Cell>
                       <div class={css({ display: "flex", gap: "1" })}>
                         <IconButton asChild={(props) => <A {...props()} />} href={`/items/${item.id}`} variant="outline" size="sm">

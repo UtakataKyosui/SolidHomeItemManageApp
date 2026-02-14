@@ -34,12 +34,12 @@ export default function Dashboard() {
           <div class={css({ display: "flex", flexDirection: "column", gap: "4" })}>
             {/* 統計カード */}
             <div class={css({ display: "grid", gridTemplateColumns: { base: "repeat(2, 1fr)", md: "repeat(4, 1fr)" }, gap: "4" })}>
-              <A href="/items" class={css({ textDecoration: "none" })}>
+              <A href="/items" class={css({ textDecoration: "none" })} aria-label="アイテム">
                 <Card.Root>
                   <Card.Header>
-                    <div class={css({ display: "flex", alignItems: "center", gap: "2" })}>
+                    <div class={css({ display: "flex", alignItems: "center", gap: "2", justifyContent: "center" })}>
                       <Package size={20} />
-                      <Card.Title>アイテム</Card.Title>
+                      <Card.Title class={css({ display: { base: "none", md: "block" } })}>アイテム</Card.Title>
                     </div>
                   </Card.Header>
                   <Card.Body>
@@ -48,12 +48,12 @@ export default function Dashboard() {
                 </Card.Root>
               </A>
 
-              <A href="/categories" class={css({ textDecoration: "none" })}>
+              <A href="/categories" class={css({ textDecoration: "none" })} aria-label="カテゴリ">
                 <Card.Root>
                   <Card.Header>
-                    <div class={css({ display: "flex", alignItems: "center", gap: "2" })}>
+                    <div class={css({ display: "flex", alignItems: "center", gap: "2", justifyContent: "center" })}>
                       <FolderOpen size={20} />
-                      <Card.Title>カテゴリ</Card.Title>
+                      <Card.Title class={css({ display: { base: "none", md: "block" } })}>カテゴリ</Card.Title>
                     </div>
                   </Card.Header>
                   <Card.Body>
@@ -62,12 +62,12 @@ export default function Dashboard() {
                 </Card.Root>
               </A>
 
-              <A href="/boxes" class={css({ textDecoration: "none" })}>
+              <A href="/boxes" class={css({ textDecoration: "none" })} aria-label="ボックス">
                 <Card.Root>
                   <Card.Header>
-                    <div class={css({ display: "flex", alignItems: "center", gap: "2" })}>
+                    <div class={css({ display: "flex", alignItems: "center", gap: "2", justifyContent: "center" })}>
                       <Box size={20} />
-                      <Card.Title>ボックス</Card.Title>
+                      <Card.Title class={css({ display: { base: "none", md: "block" } })}>ボックス</Card.Title>
                     </div>
                   </Card.Header>
                   <Card.Body>
@@ -76,12 +76,12 @@ export default function Dashboard() {
                 </Card.Root>
               </A>
 
-              <A href="/storages" class={css({ textDecoration: "none" })}>
+              <A href="/storages" class={css({ textDecoration: "none" })} aria-label="収納場所">
                 <Card.Root>
                   <Card.Header>
-                    <div class={css({ display: "flex", alignItems: "center", gap: "2" })}>
+                    <div class={css({ display: "flex", alignItems: "center", gap: "2", justifyContent: "center" })}>
                       <Archive size={20} />
-                      <Card.Title>収納場所</Card.Title>
+                      <Card.Title class={css({ display: { base: "none", md: "block" } })}>収納場所</Card.Title>
                     </div>
                   </Card.Header>
                   <Card.Body>
