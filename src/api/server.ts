@@ -38,7 +38,7 @@ async function register(username: string, password: string) {
     password,
     salt,
     parallelism: 2,
-    iterations: 3,
+    iterations: 10,
     memorySize: 65536, // 64MiB
     hashLength: 32,
     outputType: "encoded",

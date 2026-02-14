@@ -38,7 +38,7 @@ export async function createItem(formData: FormData) {
       description: description.trim(),
       price,
       quantity,
-      image: String(formData.get("image") ?? ""),
+      image: String(formData.get("image") ?? "").startsWith("data:image/") ? String(formData.get("image")) : "",
       userId: user.id,
     })
     .run();
@@ -63,7 +63,7 @@ export async function updateItem(formData: FormData) {
       description: description.trim(),
       price,
       quantity,
-      image: String(formData.get("image") ?? ""),
+      image: String(formData.get("image") ?? "").startsWith("data:image/") ? String(formData.get("image")) : "",
     })
     .where(and(eq(Items.id, id), eq(Items.userId, user.id)))
     .run();

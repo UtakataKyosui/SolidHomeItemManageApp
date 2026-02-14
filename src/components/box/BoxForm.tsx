@@ -19,7 +19,7 @@ type BoxFormProps = {
 export function BoxForm(props: BoxFormProps) {
   return (
     <Card.Root class={css({ width: "80%", margin: "0 auto" })}>
-      <form action={props.action} method="post" aria-describedby={props.submission.result ? "error-message" : undefined}>
+      <form action={props.action} method="post" aria-describedby={props.submission.result instanceof Error ? "error-message" : undefined}>
         <Card.Header>
           <Card.Title>
             {props.initial ? "ボックスを編集" : "ボックスを追加"}
@@ -59,9 +59,9 @@ export function BoxForm(props: BoxFormProps) {
         </Card.Body>
         <Card.Footer>
           <Button type="submit">{props.submitLabel}</Button>
-          <Show when={props.submission.result}>
+          <Show when={props.submission.result instanceof Error}>
             <p style={{ color: "red" }} role="alert" id="error-message">
-              {(props.submission.result as Error)!.message}
+              {(props.submission.result as Error).message}
             </p>
           </Show>
         </Card.Footer>
