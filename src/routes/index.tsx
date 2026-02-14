@@ -7,11 +7,11 @@ export const route = {
   },
 } satisfies RouteDefinition;
 
-// getUser() は未認証時に /login へリダイレクトする
-// 認証済みの場合はダッシュボードへリダイレクト
+// getUser() always returns the default user in single-user mode.
+// Redirect to dashboard immediately.
 export default function Home() {
-  // サーバーサイドで getUser が呼ばれ認証チェックされる
-  // クライアントサイドではダッシュボードへ転送
+  // Server-side check is implicit via getUser call in preload (though preload return value isn't used here)
+  // Client-side redirect to dashboard
   if (typeof window !== "undefined") {
     window.location.href = "/dashboard";
   }
