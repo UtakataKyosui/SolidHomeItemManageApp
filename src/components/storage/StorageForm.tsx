@@ -10,7 +10,7 @@ import { PageContainer } from "~/components/ui/container";
 type StorageFormProps = {
   action: JSX.SerializableAttributeValue;
   submitLabel: string;
-  initial?: { id: number; name: string };
+  initial?: { id: string; name: string };
   submission: ReturnType<typeof useSubmission>;
 };
 

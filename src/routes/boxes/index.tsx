@@ -25,7 +25,7 @@ export default function BoxList() {
     <PageContainer>
       <div class={css({ display: "flex", justifyContent: "space-between", alignItems: "center", mb: "4" })}>
         <h1 class={css({ textStyle: "2xl", fontWeight: "bold" })}>ボックス</h1>
-        <Button asChild={(props) => <A {...props()} />} href="/boxes/new">
+        <Button asChild={(props) => <A {...props()} href="/boxes/new" />}>
           <Plus size={16} /> 新規作成
         </Button>
       </div>
@@ -68,7 +68,7 @@ export default function BoxList() {
                     </Table.Cell>
                     <Table.Cell>
                       <div class={css({ display: "flex", gap: "1" })}>
-                        <IconButton asChild={(props) => <A {...props()} />} href={`/boxes/${box.id}/edit`} variant="outline" size="sm">
+                        <IconButton asChild={(props) => <A {...props()} href={`/boxes/${box.id}/edit`} />} variant="outline" size="sm">
                           <Pencil size={14} />
                         </IconButton>
                         <Show when={!box.isDefault}>

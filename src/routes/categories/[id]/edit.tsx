@@ -12,7 +12,7 @@ export const route = {
 
 export default function EditCategory() {
   const params = useParams();
-  const category = createAsync(() => getCategory(Number(params.id)));
+  const category = createAsync(() => getCategory(params.id!));
   const submission = useSubmission(updateCategory);
 
   return (

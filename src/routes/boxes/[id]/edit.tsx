@@ -14,21 +14,19 @@ export const route = {
 
 export default function EditBox() {
   const params = useParams();
-  const box = createAsync(() => getBox(Number(params.id)));
+  const box = createAsync(() => getBox(params.id!));
   const storages = createAsync(() => getStorages());
   const submission = useSubmission(updateBox);
 
   return (
     <Show when={box() && storages()}>
-      {() => (
-        <BoxForm
-          action={updateBox}
-          submitLabel="更新"
-          storages={storages()!}
-          initial={box()!}
-          submission={submission}
-        />
-      )}
+      <BoxForm
+        action={updateBox}
+        submitLabel="更新"
+        storages={storages()!}
+        initial={box()!}
+        submission={submission}
+      />
     </Show>
   );
 }

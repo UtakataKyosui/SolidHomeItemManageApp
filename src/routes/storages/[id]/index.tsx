@@ -19,8 +19,8 @@ export const route = {
 
 export default function StorageDetail() {
   const params = useParams();
-  const storage = createAsync(() => getStorage(Number(params.id)));
-  const boxesWithItems = createAsync(() => getStorageBoxesWithItems(Number(params.id)));
+  const storage = createAsync(() => getStorage(params.id!));
+  const boxesWithItems = createAsync(() => getStorageBoxesWithItems(params.id!));
 
   return (
     <PageContainer>
@@ -29,7 +29,7 @@ export default function StorageDetail() {
           <>
             <div class={css({ display: "flex", justifyContent: "space-between", alignItems: "center", mb: "4" })}>
               <h1 class={css({ textStyle: "2xl", fontWeight: "bold" })}>{s().name}</h1>
-              <Button asChild={(props) => <A {...props()} />} href={`/storages/${s().id}/edit`} variant="outline">
+              <Button asChild={(props) => <A {...props()} href={`/storages/${s().id}/edit`} />} variant="outline">
                 <Pencil size={16} /> 編集
               </Button>
             </div>

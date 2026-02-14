@@ -22,9 +22,9 @@ export const route = {
 
 export default function ItemDetail() {
   const params = useParams();
-  const item = createAsync(() => getItem(Number(params.id)));
-  const itemCategories = createAsync(() => getItemCategories(Number(params.id)));
-  const itemBoxes = createAsync(() => getItemBoxes(Number(params.id)));
+  const item = createAsync(() => getItem(params.id!));
+  const itemCategories = createAsync(() => getItemCategories(params.id!));
+  const itemBoxes = createAsync(() => getItemBoxes(params.id!));
   const allCategories = createAsync(() => getCategories());
   const allBoxes = createAsync(() => getAllBoxesWithStorage());
 
@@ -48,7 +48,7 @@ export default function ItemDetail() {
           <>
             <div class={css({ display: "flex", justifyContent: "space-between", alignItems: "center", mb: "4" })}>
               <h1 class={css({ textStyle: "2xl", fontWeight: "bold" })}>{i().name}</h1>
-              <Button asChild={(props) => <A {...props()} />} href={`/items/${i().id}/edit`} variant="outline">
+              <Button asChild={(props) => <A {...props()} href={`/items/${i().id}/edit`} />} variant="outline">
                 <Pencil size={16} /> 編集
               </Button>
             </div>

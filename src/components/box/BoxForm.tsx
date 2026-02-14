@@ -7,13 +7,13 @@ import { Input } from "~/components/ui/input";
 import { css } from "styled-system/css";
 import { PageContainer } from "~/components/ui/container";
 
-type StorageOption = { id: number; name: string };
+type StorageOption = { id: string; name: string };
 
 type BoxFormProps = {
   action: JSX.SerializableAttributeValue;
   submitLabel: string;
   storages: StorageOption[];
-  initial?: { id: number; name: string; storageId: number };
+  initial?: { id: string; name: string; storageId: string };
   submission: ReturnType<typeof useSubmission>;
 };
 

@@ -25,7 +25,7 @@ export default function CategoryList() {
     <PageContainer>
       <div class={css({ display: "flex", justifyContent: "space-between", alignItems: "center", mb: "4" })}>
         <h1 class={css({ textStyle: "2xl", fontWeight: "bold" })}>カテゴリ</h1>
-        <Button asChild={(props) => <A {...props()} />} href="/categories/new">
+        <Button asChild={(props) => <A {...props()} href="/categories/new" />}>
           <Plus size={16} /> 新規作成
         </Button>
       </div>
@@ -57,7 +57,7 @@ export default function CategoryList() {
                     </Table.Cell>
                     <Table.Cell>
                       <div class={css({ display: "flex", gap: "1" })}>
-                        <IconButton asChild={(props) => <A {...props()} />} href={`/categories/${category.id}/edit`} variant="outline" size="sm">
+                        <IconButton asChild={(props) => <A {...props()} href={`/categories/${category.id}/edit`} />} variant="outline" size="sm">
                           <Pencil size={14} />
                         </IconButton>
                         <Dialog.Root>

@@ -12,7 +12,7 @@ export const route = {
 
 export default function EditItem() {
   const params = useParams();
-  const item = createAsync(() => getItem(Number(params.id)));
+  const item = createAsync(() => getItem(params.id!));
   const submission = useSubmission(updateItem);
 
   return (

@@ -10,7 +10,7 @@ import { PageContainer } from "~/components/ui/container";
 type ItemFormProps = {
   action: JSX.SerializableAttributeValue;
   submitLabel: string;
-  initial?: { id: number; name: string; description: string; price: number; quantity: number; image?: string | null };
+  initial?: { id: string; name: string; description: string; price: number; quantity: number; image?: string | null };
   submission: ReturnType<typeof useSubmission>;
 };
 

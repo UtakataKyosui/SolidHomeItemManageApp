@@ -18,8 +18,8 @@ export const route = {
 
 export default function CategoryDetail() {
   const params = useParams();
-  const category = createAsync(() => getCategory(Number(params.id)));
-  const items = createAsync(() => getCategoryItems(Number(params.id)));
+  const category = createAsync(() => getCategory(params.id!));
+  const items = createAsync(() => getCategoryItems(params.id!));
 
   return (
     <PageContainer>
@@ -28,7 +28,7 @@ export default function CategoryDetail() {
           <>
             <div class={css({ display: "flex", justifyContent: "space-between", alignItems: "center", mb: "4" })}>
               <h1 class={css({ textStyle: "2xl", fontWeight: "bold" })}>{c().name}</h1>
-              <Button asChild={(props) => <A {...props()} />} href={`/categories/${c().id}/edit`} variant="outline">
+              <Button asChild={(props) => <A {...props()} href={`/categories/${c().id}/edit`} />} variant="outline">
                 <Pencil size={16} /> 編集
               </Button>
             </div>

@@ -18,8 +18,8 @@ export const route = {
 
 export default function BoxDetail() {
   const params = useParams();
-  const box = createAsync(() => getBox(Number(params.id)));
-  const items = createAsync(() => getBoxItems(Number(params.id)));
+  const box = createAsync(() => getBox(params.id!));
+  const items = createAsync(() => getBoxItems(params.id!));
 
   return (
     <PageContainer>
@@ -28,7 +28,7 @@ export default function BoxDetail() {
           <>
             <div class={css({ display: "flex", justifyContent: "space-between", alignItems: "center", mb: "4" })}>
               <h1 class={css({ textStyle: "2xl", fontWeight: "bold" })}>{b().name}</h1>
-              <Button asChild={(props) => <A {...props()} />} href={`/boxes/${b().id}/edit`} variant="outline">
+              <Button asChild={(props) => <A {...props()} href={`/boxes/${b().id}/edit`} />} variant="outline">
                 <Pencil size={16} /> 編集
               </Button>
             </div>

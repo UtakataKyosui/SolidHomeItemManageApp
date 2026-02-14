@@ -12,7 +12,7 @@ export const route = {
 
 export default function EditStorage() {
   const params = useParams();
-  const storage = createAsync(() => getStorage(Number(params.id)));
+  const storage = createAsync(() => getStorage(params.id!));
   const submission = useSubmission(updateStorage);
 
   return (

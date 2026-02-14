@@ -25,7 +25,7 @@ export default function ItemList() {
     <PageContainer>
       <div class={css({ display: "flex", justifyContent: "space-between", alignItems: "center", mb: "4" })}>
         <h1 class={css({ textStyle: "2xl", fontWeight: "bold" })}>アイテム</h1>
-        <Button asChild={(props) => <A {...props()} />} href="/items/new">
+        <Button asChild={(props) => <A {...props()} href="/items/new" />}>
           <Plus size={16} /> 新規作成
         </Button>
       </div>
@@ -63,10 +63,10 @@ export default function ItemList() {
                     <Table.Cell class={css({ display: { base: "none", md: "table-cell" } })}>{item.quantity}</Table.Cell>
                     <Table.Cell>
                       <div class={css({ display: "flex", gap: "1" })}>
-                        <IconButton asChild={(props) => <A {...props()} />} href={`/items/${item.id}`} variant="outline" size="sm">
+                        <IconButton asChild={(props) => <A {...props()} href={`/items/${item.id}`} />} variant="outline" size="sm">
                           <Eye size={14} />
                         </IconButton>
-                        <IconButton asChild={(props) => <A {...props()} />} href={`/items/${item.id}/edit`} variant="outline" size="sm">
+                        <IconButton asChild={(props) => <A {...props()} href={`/items/${item.id}/edit`} />} variant="outline" size="sm">
                           <Pencil size={14} />
                         </IconButton>
                         <Dialog.Root>
