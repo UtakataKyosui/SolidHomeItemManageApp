@@ -1,55 +1,41 @@
+"use server";
 import { redirect } from "@solidjs/router";
-import { storage } from "../../lib/storage";
+import { eq, and } from "drizzle-orm";
+import { db } from "../db";
+import { Items, ItemCategories, ItemCategoryRelations } from "../../../drizzle/schema";
 import { getUser } from "../server";
 
 export async function getItemCategories(itemId: number) {
   const user = await getUser();
-  const relations = storage.getItemCategoryRelations();
-  const categories = storage.getItemCategories();
-  const items = storage.getItems();
-
-  const item = items.find((i) => i.id === itemId && i.userId === user.id);
-  if (!item) return [];
-
-  const itemRelations = relations.filter((r) => r.itemId === itemId);
-
-  return itemRelations.map((r) => {
-    const category = categories.find((c) => c.id === r.itemCategoryId);
-    if (!category || category.userId !== user.id) return null;
-
-    return {
-      relationId: r.id,
-      categoryId: category.id,
-      categoryName: category.name,
-    };
-  }).filter((item): item is NonNullable<typeof item> => item !== null);
+  return db
+    .select({
+      relationId: ItemCategoryRelations.id,
+      categoryId: ItemCategories.id,
+      categoryName: ItemCategories.name,
+    })
+    .from(ItemCategoryRelations)
+    .innerJoin(ItemCategories, eq(ItemCategoryRelations.itemCategoryId, ItemCategories.id))
+    .innerJoin(Items, eq(ItemCategoryRelations.itemId, Items.id))
+    .where(and(eq(ItemCategoryRelations.itemId, itemId), eq(Items.userId, user.id)))
+    .all();
 }
 
 export async function getCategoryItems(categoryId: number) {
   const user = await getUser();
-  const relations = storage.getItemCategoryRelations();
-  const items = storage.getItems();
-  const categories = storage.getItemCategories();
-
-  const category = categories.find((c) => c.id === categoryId && c.userId === user.id);
-  if (!category) return [];
-
-  const categoryRelations = relations.filter((r) => r.itemCategoryId === categoryId);
-
-  return categoryRelations.map((r) => {
-    const item = items.find((i) => i.id === r.itemId);
-    if (!item || item.userId !== user.id) return null;
-
-    return {
-      relationId: r.id,
-      itemId: item.id,
-      itemName: item.name,
-      itemDescription: item.description,
-      itemPrice: item.price,
-      itemQuantity: item.quantity,
-      itemImage: item.image,
-    };
-  }).filter((item): item is NonNullable<typeof item> => item !== null);
+  return db
+    .select({
+      relationId: ItemCategoryRelations.id,
+      itemId: Items.id,
+      itemName: Items.name,
+      itemDescription: Items.description,
+      itemPrice: Items.price,
+      itemQuantity: Items.quantity,
+    })
+    .from(ItemCategoryRelations)
+    .innerJoin(Items, eq(ItemCategoryRelations.itemId, Items.id))
+    .innerJoin(ItemCategories, eq(ItemCategoryRelations.itemCategoryId, ItemCategories.id))
+    .where(and(eq(ItemCategoryRelations.itemCategoryId, categoryId), eq(ItemCategories.userId, user.id)))
+    .all();
 }
 
 export async function assignCategory(formData: FormData) {
@@ -57,25 +43,32 @@ export async function assignCategory(formData: FormData) {
   const itemId = Number(formData.get("itemId"));
   const categoryId = Number(formData.get("categoryId"));
 
-  const items = storage.getItems();
-  const categories = storage.getItemCategories();
-
-  const item = items.find((i) => i.id === itemId && i.userId === user.id);
+  // アイテムの所有権チェック
+  const item = db
+    .select()
+    .from(Items)
+    .where(and(eq(Items.id, itemId), eq(Items.userId, user.id)))
+    .get();
   if (!item) throw redirect("/items");
 
-  const category = categories.find((c) => c.id === categoryId && c.userId === user.id);
+  // カテゴリの所有権チェック
+  const category = db
+    .select()
+    .from(ItemCategories)
+    .where(and(eq(ItemCategories.id, categoryId), eq(ItemCategories.userId, user.id)))
+    .get();
   if (!category) throw redirect("/items");
 
-  const relations = storage.getItemCategoryRelations();
-  const existing = relations.find((r) => r.itemId === itemId && r.itemCategoryId === categoryId);
+  const existing = db
+    .select()
+    .from(ItemCategoryRelations)
+    .where(and(eq(ItemCategoryRelations.itemId, itemId), eq(ItemCategoryRelations.itemCategoryId, categoryId)))
+    .get();
 
   if (!existing) {
-    const newRelation = {
-      id: storage.generateId(),
-      itemId,
-      itemCategoryId: categoryId,
-    };
-    storage.saveItemCategoryRelation(newRelation);
+    db.insert(ItemCategoryRelations)
+      .values({ itemId, itemCategoryId: categoryId })
+      .run();
   }
   throw redirect(`/items/${itemId}`);
 }
@@ -85,15 +78,15 @@ export async function removeCategory(formData: FormData) {
   const relationId = Number(formData.get("relationId"));
   const itemId = Number(formData.get("itemId"));
 
-  const relations = storage.getItemCategoryRelations();
-  const items = storage.getItems();
-
-  const relation = relations.find((r) => r.id === relationId);
+  // リレーションがユーザー所有のアイテムに関連していることを確認
+  const relation = db
+    .select()
+    .from(ItemCategoryRelations)
+    .innerJoin(Items, eq(ItemCategoryRelations.itemId, Items.id))
+    .where(and(eq(ItemCategoryRelations.id, relationId), eq(Items.userId, user.id)))
+    .get();
   if (!relation) throw redirect(`/items/${itemId}`);
 
-  const item = items.find((i) => i.id === relation.itemId && i.userId === user.id);
-  if (!item) throw redirect(`/items/${itemId}`);
-
-  storage.deleteItemCategoryRelation(relationId);
+  db.delete(ItemCategoryRelations).where(eq(ItemCategoryRelations.id, relationId)).run();
   throw redirect(`/items/${itemId}`);
 }

@@ -1,7 +1,9 @@
-import { action, redirect } from "@solidjs/router";
-import { storage } from "../lib/storage";
-
-// ... (validation functions remain same)
+"use server";
+import { redirect } from "@solidjs/router";
+import { useSession } from "vinxi/http";
+import { eq } from "drizzle-orm";
+import { db } from "./db";
+import { Users } from "../../drizzle/schema";
 
 function validateUsername(username: unknown) {
   if (typeof username !== "string" || username.length < 3) {
@@ -9,40 +11,86 @@ function validateUsername(username: unknown) {
   }
 }
 
-// Single user mode: always return the default user (ID 1)
-const DEFAULT_USER_ID = 1;
-const DEFAULT_USERNAME = "User";
-
-export async function getUser() {
-  const users = storage.getUsers();
-  let user = users.find((u) => u.id === DEFAULT_USER_ID);
-
-  if (!user) {
-    // If no user found, create the default one.
-    user = {
-      id: DEFAULT_USER_ID,
-      username: DEFAULT_USERNAME,
-    };
-    storage.saveUser(user);
-    // In single user mode, we don't really need sessions, but setting it just in case logic depends on it.
-    storage.setSession(user.id);
+function validatePassword(password: unknown) {
+  if (typeof password !== "string" || password.length < 6) {
+    return `Passwords must be at least 6 characters long`;
   }
-
-  return { id: user.id, username: user.username };
 }
 
-export const updateUser = action(async (formData: FormData) => {
-  const user = await getUser();
-  const username = String(formData.get("username"));
+import { argon2id, argon2Verify } from "hash-wasm";
 
-  const error = validateUsername(username);
+function getRandomSalt(length = 16) {
+  return crypto.getRandomValues(new Uint8Array(length));
+}
+
+async function login(username: string, password: string) {
+  const user = db.select().from(Users).where(eq(Users.username, username)).get();
+  if (!user || !(await argon2Verify({ password, hash: user.password }))) throw new Error("Invalid login");
+  return user;
+}
+
+async function register(username: string, password: string) {
+  const existingUser = db.select().from(Users).where(eq(Users.username, username)).get();
+  if (existingUser) throw new Error("User already exists");
+
+  const salt = getRandomSalt();
+  const hashedPassword = await argon2id({
+    password,
+    salt,
+    parallelism: 2,
+    iterations: 10,
+    memorySize: 65536, // 64MiB
+    hashLength: 32,
+    outputType: "encoded",
+  });
+
+  return db.insert(Users).values({ username, password: hashedPassword }).returning().get();
+}
+
+function getSession() {
+  const secret = process.env.SESSION_SECRET;
+  if (!secret) throw new Error("SESSION_SECRET environment variable is required");
+  return useSession({
+    password: secret
+  });
+}
+
+export async function loginOrRegister(formData: FormData) {
+  const username = String(formData.get("username"));
+  const password = String(formData.get("password"));
+  const loginType = String(formData.get("loginType"));
+  let error = validateUsername(username) || validatePassword(password);
   if (error) return new Error(error);
 
-  const updatedUser = {
-    id: user.id,
-    username,
-  };
+  try {
+    const user = await (loginType === "register"
+      ? register(username, password)
+      : login(username, password));
+    const session = await getSession();
+    await session.update(d => {
+      d.userId = user.id;
+    });
+  } catch (err) {
+    return err as Error;
+  }
+  throw redirect("/");
+}
 
-  storage.saveUser(updatedUser);
-  throw redirect("/settings");
-});
+export async function logout() {
+  const session = await getSession();
+  await session.update(d => (d.userId = undefined));
+  throw redirect("/login");
+}
+
+export async function getUser() {
+  const session = await getSession();
+  const userId = session.data.userId;
+  if (userId === undefined) throw redirect("/login");
+
+  const user = db.select().from(Users).where(eq(Users.id, userId)).get();
+  if (!user) {
+    await logout();
+    throw redirect("/login");
+  }
+  return { id: user.id, username: user.username };
+}

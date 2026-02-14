@@ -5,7 +5,7 @@ import { Suspense, For } from "solid-js";
 import { Link } from "./components/ui/link";
 import "./app.css";
 import { css } from "styled-system/css";
-import { LayoutDashboard, Package, FolderOpen, Archive, Box, Settings } from "lucide-solid";
+import { LayoutDashboard, Package, FolderOpen, Archive, Box } from "lucide-solid";
 import { ThemeProvider } from "./components/theme-provider";
 import { ThemeToggle } from "./components/ui/theme-toggle";
 import * as Dialog from "./components/ui/dialog";
@@ -24,7 +24,6 @@ const navLinks: NavLink[] = [
   { href: "/categories", icon: FolderOpen, label: "カテゴリ" },
   { href: "/boxes", icon: Box, label: "ボックス" },
   { href: "/storages", icon: Archive, label: "収納場所" },
-  { href: "/settings", icon: Settings, label: "設定" },
 ];
 
 export default function App() {
