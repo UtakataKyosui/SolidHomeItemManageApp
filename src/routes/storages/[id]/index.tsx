@@ -62,7 +62,7 @@ export default function StorageDetail() {
                           <p class={css({ color: "fg.muted", textStyle: "sm" })}>このボックスにはアイテムがありません。</p>
                         }
                       >
-                        <div class={css({ overflowX: "auto" })}>
+                        <Table.Container>
                           <Table.Root>
                             <Table.Head>
                               <Table.Row>
@@ -89,7 +89,7 @@ export default function StorageDetail() {
                               </For>
                             </Table.Body>
                           </Table.Root>
-                        </div>
+                        </Table.Container>
                       </Show>
                     </Card.Body>
                   </Card.Root>

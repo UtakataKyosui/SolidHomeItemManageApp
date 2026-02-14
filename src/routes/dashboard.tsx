@@ -14,12 +14,14 @@ export const route = {
   },
 } satisfies RouteDefinition;
 
+import { PageContainer } from "~/components/ui/container";
+
 export default function Dashboard() {
   const user = createAsync(() => getUser(), { deferStream: true });
   const stats = createAsync(() => getDashboardStats());
 
   return (
-    <div class={css({ width: { base: "95%", md: "80%" }, margin: "0 auto", py: "6" })}>
+    <PageContainer>
       <div class={css({ display: "flex", justifyContent: "space-between", alignItems: "center", mb: "6" })}>
         <h1 class={css({ textStyle: "2xl", fontWeight: "bold" })}>
           ようこそ、{user()?.username} さん
@@ -129,6 +131,6 @@ export default function Dashboard() {
           </div>
         )}
       </Show>
-    </div>
+    </PageContainer>
   );
 }

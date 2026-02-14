@@ -37,7 +37,7 @@ export default function ItemList() {
           </p>
         }
       >
-        <div class={css({ overflowX: "auto" })}>
+        <Table.Container>
           <Table.Root>
             <Table.Head>
               <Table.Row>
@@ -102,7 +102,7 @@ export default function ItemList() {
               </For>
             </Table.Body>
           </Table.Root>
-        </div>
+        </Table.Container>
       </Show>
     </div>
   );

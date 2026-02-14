@@ -1,7 +1,7 @@
 // @refresh reload
 import { Router } from "@solidjs/router";
 import { FileRoutes } from "@solidjs/start/router";
-import { Suspense } from "solid-js";
+import { Suspense, For } from "solid-js";
 import { Link } from "./components/ui/link";
 import "./app.css";
 import { css } from "styled-system/css";
@@ -11,6 +11,20 @@ import { ThemeToggle } from "./components/ui/theme-toggle";
 import * as Dialog from "./components/ui/dialog";
 import { IconButton } from "./components/ui/icon-button";
 import { Menu, X } from "lucide-solid";
+
+type NavLink = {
+  href: string;
+  icon: any;
+  label: string;
+};
+
+const navLinks: NavLink[] = [
+  { href: "/dashboard", icon: LayoutDashboard, label: "ダッシュボード" },
+  { href: "/items", icon: Package, label: "アイテム" },
+  { href: "/categories", icon: FolderOpen, label: "カテゴリ" },
+  { href: "/boxes", icon: Box, label: "ボックス" },
+  { href: "/storages", icon: Archive, label: "収納場所" },
+];
 
 export default function App() {
   return (
@@ -63,21 +77,13 @@ export default function App() {
                         )} />
                       </div>
                       <nav class={css({ display: "flex", flexDirection: "column", gap: "2" })}>
-                        <Link href="/dashboard" class={css({ py: "2", px: "3", borderRadius: "l2", _hover: { bg: "gray.subtle.bg" } })}>
-                          <LayoutDashboard size={16} class={css({ display: "inline", mr: "2" })} /> ダッシュボード
-                        </Link>
-                        <Link href="/items" class={css({ py: "2", px: "3", borderRadius: "l2", _hover: { bg: "gray.subtle.bg" } })}>
-                          <Package size={16} class={css({ display: "inline", mr: "2" })} /> アイテム
-                        </Link>
-                        <Link href="/categories" class={css({ py: "2", px: "3", borderRadius: "l2", _hover: { bg: "gray.subtle.bg" } })}>
-                          <FolderOpen size={16} class={css({ display: "inline", mr: "2" })} /> カテゴリ
-                        </Link>
-                        <Link href="/boxes" class={css({ py: "2", px: "3", borderRadius: "l2", _hover: { bg: "gray.subtle.bg" } })}>
-                          <Box size={16} class={css({ display: "inline", mr: "2" })} /> ボックス
-                        </Link>
-                        <Link href="/storages" class={css({ py: "2", px: "3", borderRadius: "l2", _hover: { bg: "gray.subtle.bg" } })}>
-                          <Archive size={16} class={css({ display: "inline", mr: "2" })} /> 収納場所
-                        </Link>
+                        <For each={navLinks}>
+                          {(link) => (
+                            <Link href={link.href} class={css({ py: "2", px: "3", borderRadius: "l2", _hover: { bg: "gray.subtle.bg" } })}>
+                              <link.icon size={16} class={css({ display: "inline", mr: "2" })} /> {link.label}
+                            </Link>
+                          )}
+                        </For>
                       </nav>
                       <div class={css({ mt: "auto" })}>
                         <ThemeToggle />
@@ -111,11 +117,11 @@ export default function App() {
                     },
                   }
                 })}>
-                  <li><Link href="/dashboard"><LayoutDashboard size={16} /> ダッシュボード</Link></li>
-                  <li><Link href="/items"><Package size={16} /> アイテム</Link></li>
-                  <li><Link href="/categories"><FolderOpen size={16} /> カテゴリ</Link></li>
-                  <li><Link href="/boxes"><Box size={16} /> ボックス</Link></li>
-                  <li><Link href="/storages"><Archive size={16} /> 収納場所</Link></li>
+                  <For each={navLinks}>
+                    {(link) => (
+                      <li><Link href={link.href}><link.icon size={16} /> {link.label}</Link></li>
+                    )}
+                  </For>
                 </ul>
                 <ThemeToggle />
               </div>

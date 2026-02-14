@@ -37,7 +37,7 @@ export default function BoxList() {
           </p>
         }
       >
-        <div class={css({ overflowX: "auto" })}>
+        <Table.Container>
           <Table.Root>
             <Table.Head>
               <Table.Row>
@@ -106,7 +106,7 @@ export default function BoxList() {
               </For>
             </Table.Body>
           </Table.Root>
-        </div>
+        </Table.Container>
       </Show>
     </div>
   );

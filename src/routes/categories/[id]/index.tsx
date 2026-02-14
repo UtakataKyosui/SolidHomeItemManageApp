@@ -43,7 +43,7 @@ export default function CategoryDetail() {
                     <p class={css({ color: "fg.muted", textStyle: "sm" })}>このカテゴリにはアイテムがありません。</p>
                   }
                 >
-                  <div class={css({ overflowX: "auto" })}>
+                  <Table.Container>
                     <Table.Root>
                       <Table.Head>
                         <Table.Row>
@@ -70,7 +70,7 @@ export default function CategoryDetail() {
                         </For>
                       </Table.Body>
                     </Table.Root>
-                  </div>
+                  </Table.Container>
                 </Show>
               </Card.Body>
             </Card.Root>

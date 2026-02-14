@@ -37,7 +37,7 @@ export default function CategoryList() {
           </p>
         }
       >
-        <div class={css({ overflowX: "auto" })}>
+        <Table.Container>
           <Table.Root>
             <Table.Head>
               <Table.Row>
@@ -93,7 +93,7 @@ export default function CategoryList() {
               </For>
             </Table.Body>
           </Table.Root>
-        </div>
+        </Table.Container>
       </Show>
     </div>
   );
