@@ -11,7 +11,7 @@ export async function getBoxes(): Promise<any[]> {
 
   if (!config?.notionDbId) return [];
 
-  const response = await (notion.databases as any).query({
+  const response = await notion.databases.query({
     database_id: config.notionDbId,
     filter: {
       and: [
@@ -125,7 +125,7 @@ export async function getAllBoxesWithStorage(): Promise<any[]> {
 
   if (!config?.notionDbId) return [];
 
-  const boxesResponse = await (notion.databases as any).query({
+  const boxesResponse = await notion.databases.query({
     database_id: config.notionDbId,
     filter: {
       and: [
@@ -174,7 +174,7 @@ export async function getBoxesByStorage(storageId: string): Promise<any[]> {
 
   if (!config?.notionDbId) return [];
 
-  const response = await (notion.databases as any).query({
+  const response = await notion.databases.query({
     database_id: config.notionDbId,
     filter: {
       and: [

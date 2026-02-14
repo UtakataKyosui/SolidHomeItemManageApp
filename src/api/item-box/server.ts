@@ -11,7 +11,7 @@ async function getItemsForBox(
   dbId: string,
 ): Promise<any[]> {
   const notion = await getUserNotionClient(userId);
-  const response = await (notion.databases as any).query({
+  const response = await notion.databases.query({
     database_id: dbId,
     filter: {
       and: [
@@ -102,7 +102,7 @@ export async function getStorageBoxesWithItems(storageId: string) {
   if (!config?.notionDbId) return [];
 
   // 1. Get all boxes in this storage
-  const boxesResponse = await (notion.databases as any).query({
+  const boxesResponse = await notion.databases.query({
     database_id: config.notionDbId,
     filter: {
       and: [

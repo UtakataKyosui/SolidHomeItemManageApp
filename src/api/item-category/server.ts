@@ -45,7 +45,7 @@ export async function getCategoryItems(categoryId: string) {
 
   if (!config?.notionDbId) return [];
 
-  const response = await (notion.databases as any).query({
+  const response = await notion.databases.query({
     database_id: config.notionDbId,
     filter: {
       and: [
