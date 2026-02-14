@@ -5,4 +5,6 @@ const pool = new pg.Pool({
     connectionString: process.env.DATABASE_URL,
 });
 
-export const db = drizzle(pool);
+import * as schema from "../../drizzle/schema";
+
+export const db = drizzle(pool, { schema });
