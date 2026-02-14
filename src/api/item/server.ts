@@ -68,23 +68,14 @@ export async function updateItem(formData: FormData) {
     description: description.trim(),
     price,
     quantity,
-    image: image.startsWith("data:image/") ? image : existingItem.image || "",
+    image: existingItem.image,
   };
 
-  if (image !== "" && !image.startsWith("data:image/")) {
-    // 画像が送られてきたが無効なフォーマットの場合（空文字の場合は既存維持したほうが良い？）
-    // 元の実装では空文字になるロジックだった。
-    // formからの入力が空文字なら image = "" となる。
-    // image="" のとき startsWith は false なので "" になる。
-    // 既存維持したいなら、formDataにimageが含まれていないときだけにする必要があるが、
-    // HTMLフォームでinput type="file"やhiddenで送る場合、空文字が飛んでくることが多い。
-    // ここは、"空文字が明示的に送られてきたら画像を削除する" という挙動にするか、
-    // "空文字なら無視する" か。
-    // 元のロジック: String(formData.get("image") ?? "").startsWith("data:image/") ? ... : ""
-    // これは "有効な画像でなければ空文字列にする" という意味。つまり画像削除もこれで行われる。
-    updatedItem.image = "";
-  } else if (image.startsWith("data:image/")) {
+  if (image.startsWith("data:image/")) {
     updatedItem.image = image;
+  } else if (image) {
+    // Empty valid image data is treated as request to remove image
+    updatedItem.image = "";
   }
 
   storage.saveItem(updatedItem);

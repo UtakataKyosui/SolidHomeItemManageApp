@@ -28,7 +28,7 @@ export async function getItemBoxes(itemId: number) {
       storageName: s ? s.name : "Unknown",
       isDefault: box.isDefault,
     };
-  }).filter(Boolean) as any[];
+  }).filter((item): item is NonNullable<typeof item> => item !== null);
 }
 
 export async function getBoxItems(boxId: number) {
@@ -53,8 +53,9 @@ export async function getBoxItems(boxId: number) {
       itemDescription: item.description,
       itemPrice: item.price,
       itemQuantity: item.quantity,
+      itemImage: item.image,
     };
-  }).filter(Boolean) as any[];
+  }).filter((item): item is NonNullable<typeof item> => item !== null);
 }
 
 export async function getStorageBoxesWithItems(storageId: number) {
@@ -80,8 +81,9 @@ export async function getStorageBoxesWithItems(storageId: number) {
         itemDescription: item.description,
         itemPrice: item.price,
         itemQuantity: item.quantity,
+        itemImage: item.image,
       };
-    }).filter(Boolean) as any[];
+    }).filter((item): item is NonNullable<typeof item> => item !== null);
 
     return {
       ...box,

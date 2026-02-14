@@ -165,7 +165,12 @@ class StorageClient {
     }
     saveItemCategoryRelation(relation: ItemCategoryRelation) {
         const relations = this.getItemCategoryRelations();
-        relations.push(relation);
+        const index = relations.findIndex((r) => r.id === relation.id);
+        if (index >= 0) {
+            relations[index] = relation;
+        } else {
+            relations.push(relation);
+        }
         this.setItem(STORAGE_KEYS.ITEM_CATEGORY_RELATIONS, relations);
     }
     deleteItemCategoryRelationsByItemId(itemId: number) {
@@ -225,7 +230,12 @@ class StorageClient {
     }
     saveBoxRelation(relation: BoxRelation) {
         const relations = this.getBoxRelations();
-        relations.push(relation);
+        const index = relations.findIndex((r) => r.id === relation.id);
+        if (index >= 0) {
+            relations[index] = relation;
+        } else {
+            relations.push(relation);
+        }
         this.setItem(STORAGE_KEYS.BOX_RELATIONS, relations);
     }
     deleteBoxRelationsByItemId(itemId: number) {
