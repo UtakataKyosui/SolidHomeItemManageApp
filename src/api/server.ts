@@ -38,9 +38,6 @@ export const updateUser = action(async (formData: FormData) => {
   const error = validateUsername(username);
   if (error) return new Error(error);
 
-  // In single user mode, we enable updating the single user's username.
-  // No need to check for duplicates against other users since there is only one user.
-
   const updatedUser = {
     id: user.id,
     username,

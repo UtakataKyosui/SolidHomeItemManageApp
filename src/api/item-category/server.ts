@@ -22,7 +22,7 @@ export async function getItemCategories(itemId: number) {
       categoryId: category.id,
       categoryName: category.name,
     };
-  }).filter(Boolean) as any[];
+  }).filter((item): item is NonNullable<typeof item> => item !== null);
 }
 
 export async function getCategoryItems(categoryId: number) {
@@ -47,8 +47,9 @@ export async function getCategoryItems(categoryId: number) {
       itemDescription: item.description,
       itemPrice: item.price,
       itemQuantity: item.quantity,
+      itemImage: item.image,
     };
-  }).filter(Boolean) as any[];
+  }).filter((item): item is NonNullable<typeof item> => item !== null);
 }
 
 export async function assignCategory(formData: FormData) {
