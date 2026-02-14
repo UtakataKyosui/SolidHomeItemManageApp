@@ -21,7 +21,7 @@ export default function Login(props: RouteSectionProps) {
       width: "80%",
       margin: "0 auto",
     })}>
-      <form action={loginOrRegister} method="post" aria-describedby={loggingIn.result ? "error-message" : undefined}>
+      <form action={loginOrRegister} method="post" aria-describedby={loggingIn.result instanceof Error ? "error-message" : undefined}>
         <Card.Header>
           <Card.Title>Login or Register</Card.Title>
         </Card.Header>
@@ -55,9 +55,9 @@ export default function Login(props: RouteSectionProps) {
         </Card.Body>
         <Card.Footer display="flex" flexDirection="column" >
           <Button type="submit">{loginType() === "login" ? "Login" : "Register"}</Button>
-          <Show when={loggingIn.result}>
+          <Show when={loggingIn.result instanceof Error}>
             <p style={{ color: "red" }} role="alert" id="error-message">
-              {(loggingIn.result as Error)!.message}
+              {(loggingIn.result as Error).message}
             </p>
           </Show>
         </Card.Footer>
