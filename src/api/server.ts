@@ -1,9 +1,5 @@
-"use server";
 import { redirect } from "@solidjs/router";
-import { useSession } from "vinxi/http";
-import { eq } from "drizzle-orm";
-import { db } from "./db";
-import { Users } from "../../drizzle/schema";
+import { storage } from "../lib/storage";
 
 function validateUsername(username: unknown) {
   if (typeof username !== "string" || username.length < 3) {
@@ -17,44 +13,6 @@ function validatePassword(password: unknown) {
   }
 }
 
-import { argon2id, argon2Verify } from "hash-wasm";
-
-function getRandomSalt(length = 16) {
-  return crypto.getRandomValues(new Uint8Array(length));
-}
-
-async function login(username: string, password: string) {
-  const user = db.select().from(Users).where(eq(Users.username, username)).get();
-  if (!user || !(await argon2Verify({ password, hash: user.password }))) throw new Error("Invalid login");
-  return user;
-}
-
-async function register(username: string, password: string) {
-  const existingUser = db.select().from(Users).where(eq(Users.username, username)).get();
-  if (existingUser) throw new Error("User already exists");
-
-  const salt = getRandomSalt();
-  const hashedPassword = await argon2id({
-    password,
-    salt,
-    parallelism: 2,
-    iterations: 10,
-    memorySize: 65536, // 64MiB
-    hashLength: 32,
-    outputType: "encoded",
-  });
-
-  return db.insert(Users).values({ username, password: hashedPassword }).returning().get();
-}
-
-function getSession() {
-  const secret = process.env.SESSION_SECRET;
-  if (!secret) throw new Error("SESSION_SECRET environment variable is required");
-  return useSession({
-    password: secret
-  });
-}
-
 export async function loginOrRegister(formData: FormData) {
   const username = String(formData.get("username"));
   const password = String(formData.get("password"));
@@ -63,13 +21,26 @@ export async function loginOrRegister(formData: FormData) {
   if (error) return new Error(error);
 
   try {
-    const user = await (loginType === "register"
-      ? register(username, password)
-      : login(username, password));
-    const session = await getSession();
-    await session.update(d => {
-      d.userId = user.id;
-    });
+    // 簡易的なユーザー作成・取得ロジック
+    // パスワードは保存しない（あるいは平文で保存するが今回は検証しない）
+    const users = storage.getUsers();
+    let user = users.find(u => u.username === username);
+
+    if (loginType === "register") {
+      if (user) return new Error("User already exists");
+      user = {
+        id: storage.generateId(),
+        username,
+      };
+      storage.saveUser(user);
+    } else {
+      if (!user) return new Error("Invalid login");
+      // パスワードチェックは省略
+    }
+
+    // セッション管理は省略し、LocalStorageにcurrentUserIdを保存する方式も考えられるが
+    // getUser()で最初のユーザーを返す仕様にするため、ここでは何もしない
+
   } catch (err) {
     return err as Error;
   }
@@ -77,20 +48,41 @@ export async function loginOrRegister(formData: FormData) {
 }
 
 export async function logout() {
-  const session = await getSession();
-  await session.update(d => (d.userId = undefined));
+  // セッションクリアの代わりに何もしない
   throw redirect("/login");
 }
 
 export async function getUser() {
-  const session = await getSession();
-  const userId = session.data.userId;
-  if (userId === undefined) throw redirect("/login");
-
-  const user = db.select().from(Users).where(eq(Users.id, userId)).get();
+  const users = storage.getUsers();
+  // 常に最初のユーザー、またはデフォルトユーザーを返す
+  let user = users[0];
   if (!user) {
-    await logout();
-    throw redirect("/login");
+    // デフォルトユーザーを作成
+    user = { id: 1, username: "admin" };
+    storage.saveUser(user);
   }
   return { id: user.id, username: user.username };
+}
+
+export async function updateUser(formData: FormData) {
+  const user = await getUser();
+  const username = String(formData.get("username"));
+
+  const error = validateUsername(username);
+  if (error) return new Error(error);
+
+  const users = storage.getUsers();
+  const existing = users.find((u) => u.username === username && u.id !== user.id);
+  if (existing) return new Error("Username already taken");
+
+  const updatedUser = {
+    id: user.id, // userオブジェクトはIDとusernameしか持っていない（getUserの戻り値）
+    username,
+  };
+  // getUserが返すのは {id, username} だが、storage.saveUser は User型 {id, username} を期待する。
+  // getUserの実装を見ると { id: user.id, username: user.username } を返している。
+  // storage.tsのUser型も { id: number, username: string } なので互換性あり。
+
+  storage.saveUser(updatedUser);
+  throw redirect("/settings");
 }
