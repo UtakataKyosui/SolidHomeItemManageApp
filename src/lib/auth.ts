@@ -14,6 +14,7 @@ export const auth = betterAuth({
             verification: schema.verification,
         }
     }),
+    baseURL: process.env.BETTER_AUTH_BASE_URL,
     socialProviders: {
         notion: {
             clientId: process.env.NOTION_CLIENT_ID!,

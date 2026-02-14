@@ -1,5 +1,5 @@
-import { createAuthClient } from "better-auth/solid-start";
+import { createAuthClient } from "better-auth/solid";
 
 export const authClient = createAuthClient({
-    baseURL: "http://localhost:3000", // TODO: Make this dynamic or env var based
+    baseURL: import.meta.env.VITE_BETTER_AUTH_URL || "http://localhost:3000",
 });
