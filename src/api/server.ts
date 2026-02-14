@@ -37,9 +37,9 @@ async function register(username: string, password: string) {
   const hashedPassword = await argon2id({
     password,
     salt,
-    parallelism: 1,
-    iterations: 2,
-    memorySize: 19456, // 19MiB
+    parallelism: 2,
+    iterations: 3,
+    memorySize: 65536, // 64MiB
     hashLength: 32,
     outputType: "encoded",
   });
