@@ -5,26 +5,20 @@ import { getUserConfig } from "../setup/server";
 
 export async function getDashboardStats() {
   const user = await getUser();
-  const notion = await getUserNotionClient(user.id);
   const config = await getUserConfig();
 
   if (!config?.notionDbId) {
-    return {
-      needsSetup: true,
-      itemCount: 0,
-      categoryCount: 0,
-      storageCount: 0,
-      boxCount: 0,
-      recentItems: [],
-    };
+    return { needsSetup: true as const };
   }
+
+  const notion = await getUserNotionClient(user.id);
 
   const dbId = config.notionDbId;
 
   // Count by Type
   const getCount = async (type: string) => {
     try {
-      const response = await (notion.databases as any).query({
+      const response = await notion.databases.query({
         database_id: dbId,
         page_size: 100,
         filter: {
@@ -47,7 +41,7 @@ export async function getDashboardStats() {
 
   let recentItems: any[] = [];
   try {
-    const response = await (notion.databases as any).query({
+    const response = await notion.databases.query({
       database_id: dbId,
       page_size: 5,
       sorts: [{ timestamp: "created_time", direction: "descending" }],
@@ -61,6 +55,8 @@ export async function getDashboardStats() {
     recentItems = response.results.map((page: any) => ({
       id: page.id,
       name: page.properties.Name.title[0]?.plain_text ?? "",
+      price: page.properties.Price?.number ?? 0,
+      quantity: page.properties.Quantity?.number ?? 0,
     }));
   } catch (e) {
     console.error("Failed to fetch recent items", e);

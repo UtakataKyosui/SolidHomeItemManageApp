@@ -1,11 +1,12 @@
-import { createAsync, A, type RouteDefinition } from "@solidjs/router";
-import { Show, For } from "solid-js";
+import { createAsync, A, useNavigate, type RouteDefinition } from "@solidjs/router";
+import { Show, For, createEffect } from "solid-js";
 import { css } from "styled-system/css";
 import { getUser, logout } from "~/api";
 import { getDashboardStats } from "~/api/dashboard";
 import { Button } from "~/components/ui/button";
 import * as Card from "~/components/ui/card";
 import { Package, FolderOpen, Archive, Box } from "lucide-solid";
+import { PageContainer } from "~/components/ui/container";
 
 export const route = {
   preload() {
@@ -14,43 +15,20 @@ export const route = {
   },
 } satisfies RouteDefinition;
 
-import { PageContainer } from "~/components/ui/container";
-import { performAutoSetup } from "~/api/setup/server";
-import { createEffect, createSignal } from "solid-js";
-
 export default function Dashboard() {
   const user = createAsync(() => getUser(), { deferStream: true });
   const stats = createAsync(() => getDashboardStats());
-  const [isSettingUp, setIsSettingUp] = createSignal(false);
+  const navigate = useNavigate();
 
-  createEffect(async () => {
+  createEffect(() => {
     const s = stats();
-    if (s && 'needsSetup' in s && s.needsSetup && !isSettingUp()) {
-      setIsSettingUp(true);
-      try {
-        await performAutoSetup();
-        window.location.reload();
-      } catch (e) {
-        console.error(e);
-        alert("自動セットアップに失敗しました。");
-        setIsSettingUp(false);
-      }
+    if (s && "needsSetup" in s) {
+      navigate("/setup", { replace: true });
     }
   });
 
   return (
     <PageContainer>
-      <Show when={isSettingUp()}>
-        <div class={css({
-          position: "fixed", inset: 0, bg: "rgba(255,255,255,0.9)",
-          zIndex: 100, display: "flex", justifyContent: "center", alignItems: "center",
-          flexDirection: "column", gap: "4"
-        })}>
-          <div class={css({ fontSize: "2xl", fontWeight: "bold" })}>ワークスペースをセットアップ中...</div>
-          <div>Notion に必要なデータベースを作成しています。</div>
-        </div>
-      </Show>
-
       <div class={css({ display: "flex", justifyContent: "space-between", alignItems: "center", mb: "6" })}>
         <h1 class={css({ textStyle: "2xl", fontWeight: "bold" })}>
           <p>Welcome back, {user()?.name}!</p>
@@ -60,7 +38,7 @@ export default function Dashboard() {
         </form>
       </div>
 
-      <Show when={stats() && !isSettingUp()}>
+      <Show when={stats() && !("needsSetup" in stats()!)}>
         <div class={css({ display: "flex", flexDirection: "column", gap: "4" })}>
           {/* 統計カード */}
           <div class={css({ display: "grid", gridTemplateColumns: { base: "repeat(2, 1fr)", md: "repeat(4, 1fr)" }, gap: "4" })}>
@@ -128,7 +106,7 @@ export default function Dashboard() {
             </Card.Header>
             <Card.Body>
               <Show
-                when={stats()?.recentItems && stats()!.recentItems.length > 0}
+                when={stats()?.recentItems && stats()!.recentItems!.length > 0}
                 fallback={
                   <p class={css({ color: "fg.muted", textStyle: "sm" })}>
                     まだアイテムがありません。
