@@ -17,16 +17,33 @@ function validatePassword(password: unknown) {
   }
 }
 
+import { argon2id, argon2Verify } from "hash-wasm";
+
+function getRandomSalt(length = 16) {
+  return crypto.getRandomValues(new Uint8Array(length));
+}
+
 async function login(username: string, password: string) {
   const user = db.select().from(Users).where(eq(Users.username, username)).get();
-  if (!user || !(await Bun.password.verify(password, user.password))) throw new Error("Invalid login");
+  if (!user || !(await argon2Verify({ password, hash: user.password }))) throw new Error("Invalid login");
   return user;
 }
 
 async function register(username: string, password: string) {
   const existingUser = db.select().from(Users).where(eq(Users.username, username)).get();
   if (existingUser) throw new Error("User already exists");
-  const hashedPassword = await Bun.password.hash(password);
+
+  const salt = getRandomSalt();
+  const hashedPassword = await argon2id({
+    password,
+    salt,
+    parallelism: 2,
+    iterations: 3,
+    memorySize: 65536, // 64MiB
+    hashLength: 32,
+    outputType: "encoded",
+  });
+
   return db.insert(Users).values({ username, password: hashedPassword }).returning().get();
 }
 
@@ -71,6 +88,9 @@ export async function getUser() {
   if (userId === undefined) throw redirect("/login");
 
   const user = db.select().from(Users).where(eq(Users.id, userId)).get();
-  if (!user) await logout();
+  if (!user) {
+    await logout();
+    throw redirect("/login");
+  }
   return { id: user.id, username: user.username };
 }

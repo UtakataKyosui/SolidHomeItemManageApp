@@ -21,7 +21,7 @@ export default function Login(props: RouteSectionProps) {
       width: "80%",
       margin: "0 auto",
     })}>
-      <form action={loginOrRegister} method="post">
+      <form action={loginOrRegister} method="post" aria-describedby={loggingIn.result ? "error-message" : undefined}>
         <Card.Header>
           <Card.Title>Login or Register</Card.Title>
         </Card.Header>
@@ -46,18 +46,18 @@ export default function Login(props: RouteSectionProps) {
           </Fieldset.Root>
           <Field.Root>
             <Field.Label>Username</Field.Label>
-            <Input name="username" placeholder="kody" autocomplete="username" />
+            <Input name="username" placeholder="kody" autocomplete="username" required />
           </Field.Root>
           <Field.Root>
             <Field.Label>Password</Field.Label>
-            <Input name="password" type="password" placeholder="twixrox" autocomplete="current-password" />
+            <Input name="password" type="password" placeholder="twixrox" autocomplete="current-password" required />
           </Field.Root>
         </Card.Body>
         <Card.Footer display="flex" flexDirection="column" >
           <Button type="submit">{loginType() === "login" ? "Login" : "Register"}</Button>
           <Show when={loggingIn.result}>
             <p style={{ color: "red" }} role="alert" id="error-message">
-              {loggingIn.result!.message}
+              {(loggingIn.result as Error)!.message}
             </p>
           </Show>
         </Card.Footer>
