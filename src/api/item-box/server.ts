@@ -1,97 +1,88 @@
+"use server";
 import { redirect } from "@solidjs/router";
-import { storage } from "../../lib/storage";
+import { eq, and, inArray } from "drizzle-orm";
+import { db } from "../db";
+import { Items, Boxes, BoxRelations, Storage } from "../../../drizzle/schema";
 import { getUser } from "../server";
 
 export async function getItemBoxes(itemId: number) {
   const user = await getUser();
-  const boxRelations = storage.getBoxRelations();
-  const boxes = storage.getBoxes();
-  const storages = storage.getStorages();
-  const items = storage.getItems();
-
-  const item = items.find((i) => i.id === itemId && i.userId === user.id);
-  if (!item) return [];
-
-  const relations = boxRelations.filter((r) => r.itemId === itemId);
-
-  return relations.map((r) => {
-    const box = boxes.find((b) => b.id === r.boxId);
-    if (!box || box.userId !== user.id) return null;
-
-    const s = storages.find((st) => st.id === box.storageId);
-
-    return {
-      relationId: r.id,
-      boxId: box.id,
-      boxName: box.name,
-      storageId: s ? s.id : 0,
-      storageName: s ? s.name : "Unknown",
-      isDefault: box.isDefault,
-    };
-  }).filter((item): item is NonNullable<typeof item> => item !== null);
+  return db
+    .select({
+      relationId: BoxRelations.id,
+      boxId: Boxes.id,
+      boxName: Boxes.name,
+      storageId: Storage.id,
+      storageName: Storage.name,
+      isDefault: Boxes.isDefault,
+    })
+    .from(BoxRelations)
+    .innerJoin(Boxes, eq(BoxRelations.boxId, Boxes.id))
+    .innerJoin(Storage, eq(Boxes.storageId, Storage.id))
+    .innerJoin(Items, eq(BoxRelations.itemId, Items.id))
+    .where(and(eq(BoxRelations.itemId, itemId), eq(Items.userId, user.id)))
+    .all();
 }
 
 export async function getBoxItems(boxId: number) {
   const user = await getUser();
-  const boxRelations = storage.getBoxRelations();
-  const items = storage.getItems();
-  const boxes = storage.getBoxes();
-
-  const box = boxes.find((b) => b.id === boxId && b.userId === user.id);
-  if (!box) return [];
-
-  const relations = boxRelations.filter((r) => r.boxId === boxId);
-
-  return relations.map((r) => {
-    const item = items.find((i) => i.id === r.itemId);
-    if (!item || item.userId !== user.id) return null;
-
-    return {
-      relationId: r.id,
-      itemId: item.id,
-      itemName: item.name,
-      itemDescription: item.description,
-      itemPrice: item.price,
-      itemQuantity: item.quantity,
-      itemImage: item.image,
-    };
-  }).filter((item): item is NonNullable<typeof item> => item !== null);
+  return db
+    .select({
+      relationId: BoxRelations.id,
+      itemId: Items.id,
+      itemName: Items.name,
+      itemDescription: Items.description,
+      itemPrice: Items.price,
+      itemQuantity: Items.quantity,
+    })
+    .from(BoxRelations)
+    .innerJoin(Items, eq(BoxRelations.itemId, Items.id))
+    .innerJoin(Boxes, eq(BoxRelations.boxId, Boxes.id))
+    .where(and(eq(BoxRelations.boxId, boxId), eq(Boxes.userId, user.id)))
+    .all();
 }
 
 export async function getStorageBoxesWithItems(storageId: number) {
   const user = await getUser();
-  const boxes = storage.getBoxes().filter((b) => b.storageId === storageId && b.userId === user.id);
+  const boxes = db
+    .select()
+    .from(Boxes)
+    .where(and(eq(Boxes.storageId, storageId), eq(Boxes.userId, user.id)))
+    .all();
 
-  if (boxes.length === 0) return [];
+  if (boxes.length === 0) {
+    return [];
+  }
 
-  const boxRelations = storage.getBoxRelations();
-  const items = storage.getItems();
+  const boxIds = boxes.map((b) => b.id);
 
-  const result = boxes.map((box) => {
-    const relations = boxRelations.filter((r) => r.boxId === box.id);
-    const boxItems = relations.map((r) => {
-      const item = items.find((i) => i.id === r.itemId);
-      if (!item || item.userId !== user.id) return null;
+  const items = db
+    .select({
+      relationId: BoxRelations.id,
+      boxId: BoxRelations.boxId,
+      itemId: Items.id,
+      itemName: Items.name,
+      itemDescription: Items.description,
+      itemPrice: Items.price,
+      itemQuantity: Items.quantity,
+    })
+    .from(BoxRelations)
+    .innerJoin(Items, eq(BoxRelations.itemId, Items.id))
+    .where(inArray(BoxRelations.boxId, boxIds))
+    .all();
 
-      return {
-        relationId: r.id,
-        boxId: r.boxId,
-        itemId: item.id,
-        itemName: item.name,
-        itemDescription: item.description,
-        itemPrice: item.price,
-        itemQuantity: item.quantity,
-        itemImage: item.image,
-      };
-    }).filter((item): item is NonNullable<typeof item> => item !== null);
+  const itemsByBoxId = new Map<number, typeof items>();
+  for (const item of items) {
+    if (!itemsByBoxId.has(item.boxId)) {
+      itemsByBoxId.set(item.boxId, []);
+    }
+    itemsByBoxId.get(item.boxId)!.push(item);
+  }
 
-    return {
-      ...box,
-      items: boxItems,
-    };
-  });
-
-  return result;
+  return boxes.map((box) => ({
+    ...box,
+    items: itemsByBoxId.get(box.id) || [],
+  }));
 }
 
 export async function assignBox(formData: FormData) {
@@ -99,25 +90,30 @@ export async function assignBox(formData: FormData) {
   const itemId = Number(formData.get("itemId"));
   const boxId = Number(formData.get("boxId"));
 
-  const items = storage.getItems();
-  const boxes = storage.getBoxes();
-
-  const item = items.find((i) => i.id === itemId && i.userId === user.id);
+  // アイテムの所有権チェック
+  const item = db
+    .select()
+    .from(Items)
+    .where(and(eq(Items.id, itemId), eq(Items.userId, user.id)))
+    .get();
   if (!item) throw redirect("/items");
 
-  const box = boxes.find((b) => b.id === boxId && b.userId === user.id);
+  // ボックスの所有権チェック
+  const box = db
+    .select()
+    .from(Boxes)
+    .where(and(eq(Boxes.id, boxId), eq(Boxes.userId, user.id)))
+    .get();
   if (!box) throw redirect("/items");
 
-  const relations = storage.getBoxRelations();
-  const existing = relations.find((r) => r.itemId === itemId && r.boxId === boxId);
+  const existing = db
+    .select()
+    .from(BoxRelations)
+    .where(and(eq(BoxRelations.itemId, itemId), eq(BoxRelations.boxId, boxId)))
+    .get();
 
   if (!existing) {
-    const newRelation = {
-      id: storage.generateId(),
-      itemId,
-      boxId,
-    };
-    storage.saveBoxRelation(newRelation);
+    db.insert(BoxRelations).values({ itemId, boxId }).run();
   }
   throw redirect(`/items/${itemId}`);
 }
@@ -127,15 +123,15 @@ export async function removeBox(formData: FormData) {
   const relationId = Number(formData.get("relationId"));
   const itemId = Number(formData.get("itemId"));
 
-  const relations = storage.getBoxRelations();
-  const items = storage.getItems();
-
-  const relation = relations.find((r) => r.id === relationId);
+  // リレーションがユーザー所有のアイテムに関連していることを確認
+  const relation = db
+    .select()
+    .from(BoxRelations)
+    .innerJoin(Items, eq(BoxRelations.itemId, Items.id))
+    .where(and(eq(BoxRelations.id, relationId), eq(Items.userId, user.id)))
+    .get();
   if (!relation) throw redirect(`/items/${itemId}`);
 
-  const item = items.find((i) => i.id === relation.itemId && i.userId === user.id);
-  if (!item) throw redirect(`/items/${itemId}`);
-
-  storage.deleteBoxRelation(relationId);
+  db.delete(BoxRelations).where(eq(BoxRelations.id, relationId)).run();
   throw redirect(`/items/${itemId}`);
 }

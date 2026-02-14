@@ -1,15 +1,22 @@
+"use server";
 import { redirect } from "@solidjs/router";
-import { storage } from "../../lib/storage";
+import { eq, and } from "drizzle-orm";
+import { db } from "../db";
+import { ItemCategories, ItemCategoryRelations } from "../../../drizzle/schema";
 import { getUser } from "../server";
 
 export async function getCategories() {
   const user = await getUser();
-  return storage.getItemCategories().filter((c) => c.userId === user.id);
+  return db.select().from(ItemCategories).where(eq(ItemCategories.userId, user.id)).all();
 }
 
 export async function getCategory(id: number) {
   const user = await getUser();
-  const category = storage.getItemCategories().find((c) => c.id === id && c.userId === user.id);
+  const category = db
+    .select()
+    .from(ItemCategories)
+    .where(and(eq(ItemCategories.id, id), eq(ItemCategories.userId, user.id)))
+    .get();
   if (!category) throw redirect("/categories");
   return category;
 }
@@ -17,18 +24,10 @@ export async function getCategory(id: number) {
 export async function createCategory(formData: FormData) {
   const user = await getUser();
   const name = String(formData.get("name"));
-
   if (!name || name.trim() === "") {
     return new Error("カテゴリ名を入力してください");
   }
-
-  const newCategory = {
-    id: storage.generateId(),
-    name: name.trim(),
-    userId: user.id,
-  };
-
-  storage.saveItemCategory(newCategory);
+  db.insert(ItemCategories).values({ name: name.trim(), userId: user.id }).run();
   throw redirect("/categories");
 }
 
@@ -36,38 +35,30 @@ export async function updateCategory(formData: FormData) {
   const user = await getUser();
   const id = Number(formData.get("id"));
   const name = String(formData.get("name"));
-
   if (!name || name.trim() === "") {
     return new Error("カテゴリ名を入力してください");
   }
-
-  const categories = storage.getItemCategories();
-  const existingCategoryIndex = categories.findIndex((c) => c.id === id && c.userId === user.id);
-
-  if (existingCategoryIndex === -1) {
-    throw new Error("Category not found");
-  }
-  const existingCategory = categories[existingCategoryIndex];
-
-  const updatedCategory = {
-    ...existingCategory,
-    name: name.trim(),
-  };
-
-  storage.saveItemCategory(updatedCategory);
+  db.update(ItemCategories)
+    .set({ name: name.trim() })
+    .where(and(eq(ItemCategories.id, id), eq(ItemCategories.userId, user.id)))
+    .run();
   throw redirect("/categories");
 }
 
 export async function deleteCategory(formData: FormData) {
   const user = await getUser();
   const id = Number(formData.get("id"));
-
-  const category = storage.getItemCategories().find((c) => c.id === id && c.userId === user.id);
-  if (!category) return;
-
-  // 関連データの削除
-  storage.deleteItemCategoryRelationsByCategoryId(id);
-  storage.deleteItemCategory(id);
-
+  db.transaction((tx) => {
+    const category = tx
+      .select()
+      .from(ItemCategories)
+      .where(and(eq(ItemCategories.id, id), eq(ItemCategories.userId, user.id)))
+      .get();
+    if (!category) return;
+    tx.delete(ItemCategoryRelations).where(eq(ItemCategoryRelations.itemCategoryId, id)).run();
+    tx.delete(ItemCategories)
+      .where(and(eq(ItemCategories.id, id), eq(ItemCategories.userId, user.id)))
+      .run();
+  });
   throw redirect("/categories");
 }

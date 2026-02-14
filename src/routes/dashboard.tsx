@@ -1,7 +1,7 @@
 import { createAsync, A, type RouteDefinition } from "@solidjs/router";
 import { Show, For } from "solid-js";
 import { css } from "styled-system/css";
-import { getUser } from "~/api";
+import { getUser, logout } from "~/api";
 import { getDashboardStats } from "~/api/dashboard";
 import { Button } from "~/components/ui/button";
 import * as Card from "~/components/ui/card";
@@ -26,6 +26,9 @@ export default function Dashboard() {
         <h1 class={css({ textStyle: "2xl", fontWeight: "bold" })}>
           ようこそ、{user()?.username} さん
         </h1>
+        <form action={logout} method="post">
+          <Button type="submit" variant="outline">ログアウト</Button>
+        </form>
       </div>
 
       <Show when={stats()}>
