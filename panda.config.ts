@@ -45,6 +45,23 @@ export default defineConfig({
 
       semanticTokens: {
         colors: {
+          canvas: {
+            value: "{colors.gray.1}"
+          },
+          nav: {
+            bg: {
+              value: {
+                _light: "{colors.slate.200}",
+                _dark: "{colors.slate.800}"
+              }
+            },
+            border: {
+              value: {
+                _light: "{colors.slate.100}",
+                _dark: "{colors.slate.700}"
+              }
+            }
+          },
           fg: {
             default: {
               value: {
@@ -52,14 +69,12 @@ export default defineConfig({
                 _dark: "{colors.gray.12}"
               }
             },
-
             muted: {
               value: {
                 _light: "{colors.gray.11}",
                 _dark: "{colors.gray.11}"
               }
             },
-
             subtle: {
               value: {
                 _light: "{colors.gray.10}",
@@ -67,38 +82,31 @@ export default defineConfig({
               }
             }
           },
-
           border: {
             value: {
               _light: "{colors.gray.4}",
               _dark: "{colors.gray.4}"
             }
           },
-
           error: {
             value: {
               _light: "{colors.red.9}",
               _dark: "{colors.red.9}"
             }
           },
-
           iris: iris,
           gray: neutral,
           red: red,
           green: green
         },
-
         shadows: shadows,
-
         radii: {
           l1: {
             value: "{radii.xs}"
           },
-
           l2: {
             value: "{radii.sm}"
           },
-
           l3: {
             value: "{radii.md}"
           }
