@@ -9,6 +9,7 @@ import { Badge } from "~/components/ui/badge";
 import * as Card from "~/components/ui/card";
 import * as Table from "~/components/ui/table";
 import { Pencil } from "lucide-solid";
+import { PageContainer } from "~/components/ui/container";
 
 export const route = {
   preload() {
@@ -22,7 +23,7 @@ export default function StorageDetail() {
   const boxesWithItems = createAsync(() => getStorageBoxesWithItems(Number(params.id)));
 
   return (
-    <div class={css({ width: "80%", margin: "0 auto", py: "6" })}>
+    <PageContainer>
       <Show when={storage()}>
         {(s) => (
           <>
@@ -62,32 +63,34 @@ export default function StorageDetail() {
                           <p class={css({ color: "fg.muted", textStyle: "sm" })}>このボックスにはアイテムがありません。</p>
                         }
                       >
-                        <Table.Root>
-                          <Table.Head>
-                            <Table.Row>
-                              <Table.Header>名前</Table.Header>
-                              <Table.Header>説明</Table.Header>
-                              <Table.Header>価格</Table.Header>
-                              <Table.Header>数量</Table.Header>
-                            </Table.Row>
-                          </Table.Head>
-                          <Table.Body>
-                            <For each={box.items}>
-                              {(item) => (
-                                <Table.Row>
-                                  <Table.Cell>
-                                    <A href={`/items/${item.itemId}`} class={css({ textDecoration: "underline", _hover: { color: "fg.muted" } })}>
-                                      {item.itemName}
-                                    </A>
-                                  </Table.Cell>
-                                  <Table.Cell>{item.itemDescription}</Table.Cell>
-                                  <Table.Cell>{item.itemPrice.toLocaleString()}円</Table.Cell>
-                                  <Table.Cell>{item.itemQuantity}</Table.Cell>
-                                </Table.Row>
-                              )}
-                            </For>
-                          </Table.Body>
-                        </Table.Root>
+                        <Table.Container>
+                          <Table.Root>
+                            <Table.Head>
+                              <Table.Row>
+                                <Table.Header>名前</Table.Header>
+                                <Table.Header>説明</Table.Header>
+                                <Table.Header>価格</Table.Header>
+                                <Table.Header>数量</Table.Header>
+                              </Table.Row>
+                            </Table.Head>
+                            <Table.Body>
+                              <For each={box.items}>
+                                {(item) => (
+                                  <Table.Row>
+                                    <Table.Cell>
+                                      <A href={`/items/${item.itemId}`} class={css({ textDecoration: "underline", _hover: { color: "fg.muted" } })}>
+                                        {item.itemName}
+                                      </A>
+                                    </Table.Cell>
+                                    <Table.Cell>{item.itemDescription}</Table.Cell>
+                                    <Table.Cell>{item.itemPrice.toLocaleString()}円</Table.Cell>
+                                    <Table.Cell>{item.itemQuantity}</Table.Cell>
+                                  </Table.Row>
+                                )}
+                              </For>
+                            </Table.Body>
+                          </Table.Root>
+                        </Table.Container>
                       </Show>
                     </Card.Body>
                   </Card.Root>
@@ -97,6 +100,6 @@ export default function StorageDetail() {
           </>
         )}
       </Show>
-    </div>
+    </PageContainer>
   );
 }

@@ -1,7 +1,13 @@
 import { ark } from '@ark-ui/solid/factory'
 import type { ComponentProps } from 'solid-js'
-import { createStyleContext } from 'styled-system/jsx'
+import { createStyleContext, styled } from 'styled-system/jsx'
 import { table } from 'styled-system/recipes'
+
+export const Container = styled('div', {
+    base: {
+        overflowX: 'auto',
+    },
+})
 
 const { withProvider, withContext } = createStyleContext(table)
 
