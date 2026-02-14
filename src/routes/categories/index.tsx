@@ -8,6 +8,7 @@ import { IconButton } from "~/components/ui/icon-button";
 import * as Table from "~/components/ui/table";
 import * as Dialog from "~/components/ui/dialog";
 import { Pencil, Trash2, Plus } from "lucide-solid";
+import { PageContainer } from "~/components/ui/container";
 
 export const route = {
   preload() {
@@ -21,7 +22,7 @@ export default function CategoryList() {
   const deleting = useSubmission(deleteCategory);
 
   return (
-    <div class={css({ width: { base: "95%", md: "80%" }, margin: "0 auto", py: "6" })}>
+    <PageContainer>
       <div class={css({ display: "flex", justifyContent: "space-between", alignItems: "center", mb: "4" })}>
         <h1 class={css({ textStyle: "2xl", fontWeight: "bold" })}>カテゴリ</h1>
         <Button asChild={(props) => <A {...props()} />} href="/categories/new">
@@ -95,6 +96,6 @@ export default function CategoryList() {
           </Table.Root>
         </Table.Container>
       </Show>
-    </div>
+    </PageContainer>
   );
 }

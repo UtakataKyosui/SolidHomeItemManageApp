@@ -12,6 +12,7 @@ import { IconButton } from "~/components/ui/icon-button";
 import * as Card from "~/components/ui/card";
 import { Badge } from "~/components/ui/badge";
 import { Pencil, X, Plus } from "lucide-solid";
+import { PageContainer } from "~/components/ui/container";
 
 export const route = {
   preload() {
@@ -41,7 +42,7 @@ export default function ItemDetail() {
   };
 
   return (
-    <div class={css({ width: { base: "95%", md: "80%" }, margin: "0 auto", py: "6" })}>
+    <PageContainer>
       <Show when={item()}>
         {(i) => (
           <>
@@ -181,6 +182,6 @@ export default function ItemDetail() {
           </>
         )}
       </Show>
-    </div>
+    </PageContainer>
   );
 }

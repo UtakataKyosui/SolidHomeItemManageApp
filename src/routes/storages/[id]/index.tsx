@@ -9,6 +9,7 @@ import { Badge } from "~/components/ui/badge";
 import * as Card from "~/components/ui/card";
 import * as Table from "~/components/ui/table";
 import { Pencil } from "lucide-solid";
+import { PageContainer } from "~/components/ui/container";
 
 export const route = {
   preload() {
@@ -22,7 +23,7 @@ export default function StorageDetail() {
   const boxesWithItems = createAsync(() => getStorageBoxesWithItems(Number(params.id)));
 
   return (
-    <div class={css({ width: { base: "95%", md: "80%" }, margin: "0 auto", py: "6" })}>
+    <PageContainer>
       <Show when={storage()}>
         {(s) => (
           <>
@@ -99,6 +100,6 @@ export default function StorageDetail() {
           </>
         )}
       </Show>
-    </div>
+    </PageContainer>
   );
 }
