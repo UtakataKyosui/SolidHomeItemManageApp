@@ -18,19 +18,14 @@ export async function getUser() {
   let user = users.find((u) => u.id === DEFAULT_USER_ID);
 
   if (!user) {
-    // Determine the next ID if 1 is somehow taken (unlikely in single user mode unless data is messed up)
-    // But logically we want ID 1 to be the default user.
-    // If ID 1 exists but is not the default user... handled by find.
-
     // If no user found, create the default one.
     user = {
       id: DEFAULT_USER_ID,
       username: DEFAULT_USERNAME,
     };
-    // Ensure we don't overwrite if ID 1 exists but with different details? 
-    // storage.saveUser handles update if ID exists.
     storage.saveUser(user);
-    storage.setSession(user.id); // Valid session just in case
+    // In single user mode, we don't really need sessions, but setting it just in case logic depends on it.
+    storage.setSession(user.id);
   }
 
   return { id: user.id, username: user.username };
@@ -43,9 +38,8 @@ export const updateUser = action(async (formData: FormData) => {
   const error = validateUsername(username);
   if (error) return new Error(error);
 
-  const users = storage.getUsers();
-  const existing = users.find((u) => u.username === username && u.id !== user.id);
-  if (existing) return new Error("Username already taken");
+  // In single user mode, we enable updating the single user's username.
+  // No need to check for duplicates against other users since there is only one user.
 
   const updatedUser = {
     id: user.id,
