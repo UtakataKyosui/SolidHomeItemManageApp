@@ -55,7 +55,7 @@ export function ItemForm(props: ItemFormProps) {
     }
   };
   return (
-    <Card.Root class={css({ width: "80%", margin: "0 auto" })}>
+    <Card.Root class={css({ width: { base: "95%", md: "80%" }, margin: "0 auto" })}>
       <form action={props.action} method="post" aria-describedby={props.submission.result instanceof Error ? "error-message" : undefined}>
         <Card.Header>
           <Card.Title>
@@ -93,7 +93,7 @@ export function ItemForm(props: ItemFormProps) {
               <Field.Label>説明</Field.Label>
               <Input name="description" placeholder="例: コードレスタイプ" value={props.initial?.description ?? ""} />
             </Field.Root>
-            <div class={css({ display: "flex", gap: "3" })}>
+            <div class={css({ display: "flex", flexDirection: { base: "column", md: "row" }, gap: "3" })}>
               <Field.Root>
                 <Field.Label>価格（円）</Field.Label>
                 <Input name="price" type="number" min="0" value={String(props.initial?.price ?? 0)} />

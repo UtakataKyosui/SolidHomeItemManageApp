@@ -27,8 +27,9 @@ export default function App() {
             paddingLeft: "4",
             paddingRight: "4",
             display: "flex",
-            alignItems: "center",
-            gap: "4",
+            alignItems: { base: "stretch", md: "center" },
+            flexDirection: { base: "column", md: "row" },
+            gap: { base: "2", md: "4" },
             zIndex: "100"
           })}>
             <Link textDecoration="none" href="/" variant="plain" textStyle="xl" fontWeight="bold">
@@ -40,6 +41,10 @@ export default function App() {
               margin: 0,
               padding: 0,
               listStyle: "none",
+              overflowX: "auto",
+              maxWidth: { base: "100%", md: "unset" },
+              whiteSpace: "nowrap",
+              maskImage: { base: "linear-gradient(to right, black 90%, transparent 100%)", md: "none" },
               "& a": {
                 color: "fg.default",
                 padding: "1",

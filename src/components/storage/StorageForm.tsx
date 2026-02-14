@@ -15,7 +15,7 @@ type StorageFormProps = {
 
 export function StorageForm(props: StorageFormProps) {
   return (
-    <Card.Root class={css({ width: "80%", margin: "0 auto" })}>
+    <Card.Root class={css({ width: { base: "95%", md: "80%" }, margin: "0 auto" })}>
       <form action={props.action} method="post" aria-describedby={props.submission.result instanceof Error ? "error-message" : undefined}>
         <Card.Header>
           <Card.Title>
