@@ -1,9 +1,8 @@
 export default {
-  dialect: "sqlite",
+  dialect: "postgresql",
   schema: "./drizzle/schema.ts",
   out: "./drizzle/migrations/",
-  // driver: "better-sqlite",
   dbCredentials: {
-    url: './drizzle/db.sqlite',
+    url: process.env.DATABASE_URL!,
   },
 };

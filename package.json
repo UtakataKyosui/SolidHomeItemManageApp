@@ -14,19 +14,21 @@
   "devDependencies": {
     "@pandacss/dev": "^1.8.1",
     "@solidjs/testing-library": "^0.8.10",
-    "@types/better-sqlite3": "^7.6.10",
     "@types/node": "^24.7.0",
+    "@types/pg": "^8.16.0",
     "drizzle-kit": "^0.22.7"
   },
   "dependencies": {
     "@ark-ui/solid": "^5.31.0",
+    "@notionhq/client": "^5.9.0",
     "@silvia-odwyer/photon": "^0.3.3",
     "@solidjs/router": "^0.15.0",
     "@solidjs/start": "^1.1.0",
-    "better-sqlite3": "^11.0.0",
+    "better-auth": "^1.4.18",
     "drizzle-orm": "^0.31.2",
     "hash-wasm": "^4.12.0",
     "lucide-solid": "^0.563.0",
+    "pg": "^8.18.0",
     "solid-js": "^1.9.5",
     "vinxi": "^0.5.7"
   },

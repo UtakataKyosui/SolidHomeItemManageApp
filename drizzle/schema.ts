@@ -1,84 +1,47 @@
-import { integer, text, sqliteTable } from "drizzle-orm/sqlite-core";
+import { pgTable, text, timestamp, boolean } from "drizzle-orm/pg-core";
 
-/**
- * ユーザー
- * @table users
- * @description ユーザー情報
- */
-export const Users = sqliteTable("users", {
-  id: integer("id").primaryKey().unique().notNull(),
-  username: text("username").notNull().default("").unique(),
-  password: text("password").notNull().default(""),
-});
-
-/**
- * アイテム
- * @table items
- * @description アイテム情報
- */
-export const Items = sqliteTable("items", {
-  id: integer("id").primaryKey().unique().notNull(),
-  name: text("name").notNull().default(""),
-  description: text("description").notNull().default(""),
-  price: integer("price").notNull().default(0),
-  quantity: integer("quantity").notNull().default(0),
+export const user = pgTable("user", {
+  id: text("id").primaryKey(),
+  name: text("name").notNull(),
+  email: text("email").notNull().unique(),
+  emailVerified: boolean("email_verified").notNull(),
   image: text("image"),
-  userId: integer("user_id").notNull().references(() => Users.id),
+  createdAt: timestamp("created_at").notNull(),
+  updatedAt: timestamp("updated_at").notNull(),
 });
 
-/**
- * アイテムカテゴリ
- * @table item_categories
- * @description アイテムカテゴリ情報
- */
-export const ItemCategories = sqliteTable("item_categories", {
-  id: integer("id").primaryKey().unique().notNull(),
-  name: text("name").notNull().default(""),
-  userId: integer("user_id").notNull().references(() => Users.id),
+export const session = pgTable("session", {
+  id: text("id").primaryKey(),
+  expiresAt: timestamp("expires_at").notNull(),
+  token: text("token").notNull().unique(),
+  createdAt: timestamp("created_at").notNull(),
+  updatedAt: timestamp("updated_at").notNull(),
+  ipAddress: text("ip_address"),
+  userAgent: text("user_agent"),
+  userId: text("user_id").notNull().references(() => user.id),
 });
 
-/**
- * アイテムカテゴリリレーション
- * @table item_category_relations
- * @description アイテムカテゴリリレーション情報
- */
-export const ItemCategoryRelations = sqliteTable("item_category_relations", {
-  id: integer("id").primaryKey().unique().notNull(),
-  itemId: integer("item_id").notNull().references(() => Items.id),
-  itemCategoryId: integer("item_category_id").notNull().references(() => ItemCategories.id),
+export const account = pgTable("account", {
+  id: text("id").primaryKey(),
+  accountId: text("account_id").notNull(),
+  providerId: text("provider_id").notNull(),
+  userId: text("user_id").notNull().references(() => user.id),
+  accessToken: text("access_token"),
+  refreshToken: text("refresh_token"),
+  idToken: text("id_token"),
+  accessTokenExpiresAt: timestamp("access_token_expires_at"),
+  refreshTokenExpiresAt: timestamp("refresh_token_expires_at"),
+  scope: text("scope"),
+  password: text("password"),
+  createdAt: timestamp("created_at").notNull(),
+  updatedAt: timestamp("updated_at").notNull(),
 });
 
-/**
- * 収納場所
- * @table storages
- * @description 収納場所情報
- */
-export const Storage = sqliteTable("storages", {
-  id: integer("id").primaryKey().unique().notNull(),
-  name: text("name").notNull().default(""),
-  userId: integer("user_id").notNull().references(() => Users.id),
-});
-
-/**
- * ボックス
- * @table boxes
- * @description ボックス情報
- */
-export const Boxes = sqliteTable("boxes", {
-  id: integer("id").primaryKey().notNull(),
-  name: text("name").notNull().default(""),
-  userId: integer("user_id").notNull().references(() => Users.id),
-  storageId: integer("storage_id").notNull().references(() => Storage.id),
-  isDefault: integer("is_default", { mode: "boolean" }).notNull().default(false),
-});
-
-/**
- * ボックスリレーション
- * @table box_relations
- * @description ボックスリレーション情報
- */
-export const BoxRelations = sqliteTable("box_relations", {
-  id: integer("id").primaryKey().notNull(),
-  itemId: integer("item_id").notNull().references(() => Items.id),
-  boxId: integer("box_id").notNull().references(() => Boxes.id),
+export const verification = pgTable("verification", {
+  id: text("id").primaryKey(),
+  identifier: text("identifier").notNull(),
+  value: text("value").notNull(),
+  expiresAt: timestamp("expires_at").notNull(),
+  createdAt: timestamp("created_at"),
+  updatedAt: timestamp("updated_at"),
 });
