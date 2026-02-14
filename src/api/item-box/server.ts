@@ -1,137 +1,184 @@
 "use server";
 import { redirect } from "@solidjs/router";
-import { eq, and, inArray } from "drizzle-orm";
-import { db } from "../db";
-import { Items, Boxes, BoxRelations, Storage } from "../../../drizzle/schema";
+import { getUserNotionClient } from "~/lib/notion";
 import { getUser } from "../server";
+import { getUserConfig } from "../setup/server";
 
-export async function getItemBoxes(itemId: number) {
-  const user = await getUser();
-  return db
-    .select({
-      relationId: BoxRelations.id,
-      boxId: Boxes.id,
-      boxName: Boxes.name,
-      storageId: Storage.id,
-      storageName: Storage.name,
-      isDefault: Boxes.isDefault,
-    })
-    .from(BoxRelations)
-    .innerJoin(Boxes, eq(BoxRelations.boxId, Boxes.id))
-    .innerJoin(Storage, eq(Boxes.storageId, Storage.id))
-    .innerJoin(Items, eq(BoxRelations.itemId, Items.id))
-    .where(and(eq(BoxRelations.itemId, itemId), eq(Items.userId, user.id)))
-    .all();
-}
-
-export async function getBoxItems(boxId: number) {
-  const user = await getUser();
-  return db
-    .select({
-      relationId: BoxRelations.id,
-      itemId: Items.id,
-      itemName: Items.name,
-      itemDescription: Items.description,
-      itemPrice: Items.price,
-      itemQuantity: Items.quantity,
-    })
-    .from(BoxRelations)
-    .innerJoin(Items, eq(BoxRelations.itemId, Items.id))
-    .innerJoin(Boxes, eq(BoxRelations.boxId, Boxes.id))
-    .where(and(eq(BoxRelations.boxId, boxId), eq(Boxes.userId, user.id)))
-    .all();
-}
-
-export async function getStorageBoxesWithItems(storageId: number) {
-  const user = await getUser();
-  const boxes = db
-    .select()
-    .from(Boxes)
-    .where(and(eq(Boxes.storageId, storageId), eq(Boxes.userId, user.id)))
-    .all();
-
-  if (boxes.length === 0) {
-    return [];
-  }
-
-  const boxIds = boxes.map((b) => b.id);
-
-  const items = db
-    .select({
-      relationId: BoxRelations.id,
-      boxId: BoxRelations.boxId,
-      itemId: Items.id,
-      itemName: Items.name,
-      itemDescription: Items.description,
-      itemPrice: Items.price,
-      itemQuantity: Items.quantity,
-    })
-    .from(BoxRelations)
-    .innerJoin(Items, eq(BoxRelations.itemId, Items.id))
-    .where(inArray(BoxRelations.boxId, boxIds))
-    .all();
-
-  const itemsByBoxId = new Map<number, typeof items>();
-  for (const item of items) {
-    if (!itemsByBoxId.has(item.boxId)) {
-      itemsByBoxId.set(item.boxId, []);
-    }
-    itemsByBoxId.get(item.boxId)!.push(item);
-  }
-
-  return boxes.map((box) => ({
-    ...box,
-    items: itemsByBoxId.get(box.id) || [],
+// Helper to fetch items for a box (uses single DB with Type filter)
+async function getItemsForBox(
+  boxId: string,
+  userId: string,
+  dbId: string,
+): Promise<any[]> {
+  const notion = await getUserNotionClient(userId);
+  const response = await (notion.databases as any).query({
+    database_id: dbId,
+    filter: {
+      and: [
+        { property: "UserId", rich_text: { equals: userId } },
+        { property: "Type", select: { equals: "Item" } },
+        { property: "Boxes", relation: { contains: boxId } },
+      ],
+    },
+  });
+  return response.results.map((page: any) => ({
+    relationId: page.id,
+    boxId: boxId,
+    itemId: page.id,
+    itemName: page.properties.Name.title[0]?.plain_text ?? "",
+    itemDescription:
+      page.properties.Description.rich_text[0]?.plain_text ?? "",
+    itemPrice: page.properties.Price.number ?? 0,
+    itemQuantity: page.properties.Quantity.number ?? 0,
   }));
 }
 
-export async function assignBox(formData: FormData) {
+export async function getItemBoxes(itemId: string) {
   const user = await getUser();
-  const itemId = Number(formData.get("itemId"));
-  const boxId = Number(formData.get("boxId"));
+  const notion = await getUserNotionClient(user.id);
 
-  // アイテムの所有権チェック
-  const item = db
-    .select()
-    .from(Items)
-    .where(and(eq(Items.id, itemId), eq(Items.userId, user.id)))
-    .get();
-  if (!item) throw redirect("/items");
+  try {
+    const page: any = await notion.pages.retrieve({ page_id: itemId });
+    const pageUserId = page.properties.UserId.rich_text[0]?.plain_text ?? "";
+    if (pageUserId !== user.id) {
+      return [];
+    }
 
-  // ボックスの所有権チェック
-  const box = db
-    .select()
-    .from(Boxes)
-    .where(and(eq(Boxes.id, boxId), eq(Boxes.userId, user.id)))
-    .get();
-  if (!box) throw redirect("/items");
+    const boxIds =
+      page.properties.Boxes?.relation.map((r: any) => r.id) || [];
+    if (boxIds.length === 0) return [];
 
-  const existing = db
-    .select()
-    .from(BoxRelations)
-    .where(and(eq(BoxRelations.itemId, itemId), eq(BoxRelations.boxId, boxId)))
-    .get();
+    const boxes = await Promise.all(
+      boxIds.map(async (boxId: string) => {
+        const boxPage: any = await notion.pages.retrieve({ page_id: boxId });
 
-  if (!existing) {
-    db.insert(BoxRelations).values({ itemId, boxId }).run();
+        let storageId = null;
+        let storageName = "";
+
+        const storageRel = boxPage.properties.Storage?.relation[0];
+        if (storageRel) {
+          storageId = storageRel.id;
+          try {
+            const storagePage: any = await notion.pages.retrieve({
+              page_id: storageId,
+            });
+            storageName =
+              storagePage.properties.Name.title[0]?.plain_text ?? "";
+          } catch (e) {
+            /* ignore */
+          }
+        }
+
+        return {
+          relationId: boxPage.id,
+          boxId: boxPage.id,
+          boxName: boxPage.properties.Name.title[0]?.plain_text ?? "",
+          storageId: storageId,
+          storageName: storageName,
+          isDefault: false,
+        };
+      }),
+    );
+
+    return boxes;
+  } catch (e) {
+    console.error("Error fetching item boxes", e);
+    return [];
   }
+}
+
+export async function getBoxItems(boxId: string) {
+  const user = await getUser();
+  const config = await getUserConfig();
+  if (!config?.notionDbId) return [];
+  return getItemsForBox(boxId, user.id, config.notionDbId);
+}
+
+export async function getStorageBoxesWithItems(storageId: string) {
+  const user = await getUser();
+  const notion = await getUserNotionClient(user.id);
+  const config = await getUserConfig();
+
+  if (!config?.notionDbId) return [];
+
+  // 1. Get all boxes in this storage
+  const boxesResponse = await (notion.databases as any).query({
+    database_id: config.notionDbId,
+    filter: {
+      and: [
+        { property: "UserId", rich_text: { equals: user.id } },
+        { property: "Type", select: { equals: "Box" } },
+        { property: "Storage", relation: { contains: storageId } },
+      ],
+    },
+  });
+
+  const boxes = boxesResponse.results.map((page: any) => ({
+    id: page.id,
+    name: page.properties.Name.title[0]?.plain_text ?? "",
+    userId: page.properties.UserId.rich_text[0]?.plain_text ?? "",
+    storageId: page.properties.Storage?.relation[0]?.id ?? null,
+  }));
+
+  if (boxes.length === 0) return [];
+
+  // 2. Fetch items for each box
+  const boxesWithItems = await Promise.all(
+    boxes.map(async (box: any) => {
+      const items = await getItemsForBox(box.id, user.id, config.notionDbId!);
+      return { ...box, items: items };
+    }),
+  );
+
+  return boxesWithItems;
+}
+
+export async function assignBox(formData: FormData) {
+  const itemId = String(formData.get("itemId"));
+  const boxId = String(formData.get("boxId"));
+  const user = await getUser();
+  const notion = await getUserNotionClient(user.id);
+
+  const page: any = await notion.pages.retrieve({ page_id: itemId });
+  const currentRelations = page.properties.Boxes?.relation || [];
+
+  if (currentRelations.some((r: any) => r.id === boxId)) {
+    throw redirect(`/items/${itemId}`);
+  }
+
+  await notion.pages.update({
+    page_id: itemId,
+    properties: {
+      Boxes: {
+        relation: [...currentRelations, { id: boxId }],
+      },
+    },
+  });
+
   throw redirect(`/items/${itemId}`);
 }
 
 export async function removeBox(formData: FormData) {
+  const relationId = String(formData.get("relationId"));
+  const itemId = String(formData.get("itemId"));
   const user = await getUser();
-  const relationId = Number(formData.get("relationId"));
-  const itemId = Number(formData.get("itemId"));
+  const notion = await getUserNotionClient(user.id);
 
-  // リレーションがユーザー所有のアイテムに関連していることを確認
-  const relation = db
-    .select()
-    .from(BoxRelations)
-    .innerJoin(Items, eq(BoxRelations.itemId, Items.id))
-    .where(and(eq(BoxRelations.id, relationId), eq(Items.userId, user.id)))
-    .get();
-  if (!relation) throw redirect(`/items/${itemId}`);
+  const page: any = await notion.pages.retrieve({ page_id: itemId });
+  const currentRelations = page.properties.Boxes?.relation || [];
 
-  db.delete(BoxRelations).where(eq(BoxRelations.id, relationId)).run();
+  const newRelations = currentRelations.filter(
+    (r: any) => r.id !== relationId,
+  );
+
+  await notion.pages.update({
+    page_id: itemId,
+    properties: {
+      Boxes: {
+        relation: newRelations,
+      },
+    },
+  });
+
   throw redirect(`/items/${itemId}`);
 }

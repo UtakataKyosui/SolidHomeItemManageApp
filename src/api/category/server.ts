@@ -1,64 +1,103 @@
 "use server";
 import { redirect } from "@solidjs/router";
-import { eq, and } from "drizzle-orm";
-import { db } from "../db";
-import { ItemCategories, ItemCategoryRelations } from "../../../drizzle/schema";
+import { getUserNotionClient } from "~/lib/notion";
 import { getUser } from "../server";
+import { getUserConfig } from "../setup/server";
 
-export async function getCategories() {
+export async function getCategories(): Promise<any[]> {
   const user = await getUser();
-  return db.select().from(ItemCategories).where(eq(ItemCategories.userId, user.id)).all();
-}
+  const notion = await getUserNotionClient(user.id);
+  const config = await getUserConfig();
 
-export async function getCategory(id: number) {
-  const user = await getUser();
-  const category = db
-    .select()
-    .from(ItemCategories)
-    .where(and(eq(ItemCategories.id, id), eq(ItemCategories.userId, user.id)))
-    .get();
-  if (!category) throw redirect("/categories");
-  return category;
+  if (!config?.notionDbId) return [];
+
+  const response = await (notion.databases as any).query({
+    database_id: config.notionDbId,
+    filter: {
+      and: [
+        { property: "UserId", rich_text: { equals: user.id } },
+        { property: "Type", select: { equals: "Category" } },
+      ],
+    },
+  });
+
+  return response.results.map((page: any) => ({
+    id: page.id,
+    name: page.properties.Name.title[0]?.plain_text ?? "",
+    userId: page.properties.UserId.rich_text[0]?.plain_text ?? "",
+  }));
 }
 
 export async function createCategory(formData: FormData) {
   const user = await getUser();
-  const name = String(formData.get("name"));
-  if (!name || name.trim() === "") {
-    return new Error("カテゴリ名を入力してください");
-  }
-  db.insert(ItemCategories).values({ name: name.trim(), userId: user.id }).run();
-  throw redirect("/categories");
-}
+  const notion = await getUserNotionClient(user.id);
+  const config = await getUserConfig();
 
-export async function updateCategory(formData: FormData) {
-  const user = await getUser();
-  const id = Number(formData.get("id"));
+  if (!config?.notionDbId) throw redirect("/dashboard");
+
   const name = String(formData.get("name"));
+
   if (!name || name.trim() === "") {
-    return new Error("カテゴリ名を入力してください");
+    return new Error("カテゴリー名を入力してください");
   }
-  db.update(ItemCategories)
-    .set({ name: name.trim() })
-    .where(and(eq(ItemCategories.id, id), eq(ItemCategories.userId, user.id)))
-    .run();
+
+  await notion.pages.create({
+    parent: { database_id: config.notionDbId },
+    properties: {
+      Name: { title: [{ text: { content: name.trim() } }] },
+      Type: { select: { name: "Category" } },
+      UserId: { rich_text: [{ text: { content: user.id } }] },
+    },
+  });
   throw redirect("/categories");
 }
 
 export async function deleteCategory(formData: FormData) {
   const user = await getUser();
-  const id = Number(formData.get("id"));
-  db.transaction((tx) => {
-    const category = tx
-      .select()
-      .from(ItemCategories)
-      .where(and(eq(ItemCategories.id, id), eq(ItemCategories.userId, user.id)))
-      .get();
-    if (!category) return;
-    tx.delete(ItemCategoryRelations).where(eq(ItemCategoryRelations.itemCategoryId, id)).run();
-    tx.delete(ItemCategories)
-      .where(and(eq(ItemCategories.id, id), eq(ItemCategories.userId, user.id)))
-      .run();
+  const notion = await getUserNotionClient(user.id);
+  const id = String(formData.get("id"));
+
+  await notion.pages.update({
+    page_id: id,
+    archived: true,
   });
   throw redirect("/categories");
+}
+
+export async function updateCategory(formData: FormData) {
+  const user = await getUser();
+  const notion = await getUserNotionClient(user.id);
+
+  const id = String(formData.get("id"));
+  const name = String(formData.get("name"));
+
+  if (!id) throw new Error("ID required");
+
+  const properties: any = {};
+  if (name) properties.Name = { title: [{ text: { content: name.trim() } }] };
+
+  await notion.pages.update({
+    page_id: id,
+    properties,
+  });
+  throw redirect(`/categories`);
+}
+
+export async function getCategory(categoryId: string): Promise<any> {
+  const user = await getUser();
+  const notion = await getUserNotionClient(user.id);
+
+  const response = await notion.pages.retrieve({ page_id: categoryId });
+
+  if (
+    (response as any).properties.UserId.rich_text[0]?.plain_text !== user.id
+  ) {
+    throw new Error("Unauthorized access to category.");
+  }
+
+  return {
+    id: (response as any).id,
+    name: (response as any).properties.Name.title[0]?.plain_text ?? "",
+    userId: (response as any).properties.UserId.rich_text[0]?.plain_text ?? "",
+  };
 }
