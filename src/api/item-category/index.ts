@@ -1,12 +1,7 @@
-import { action, query } from "@solidjs/router";
-import {
-  getItemCategories as gIC,
-  getCategoryItems as gCI,
-  assignCategory as aC,
-  removeCategory as rC,
-} from "./server";
-
-export const getItemCategories = query(gIC, "itemCategories");
-export const getCategoryItems = query(gCI, "categoryItems");
-export const assignCategory = action(aC, "assignCategory");
-export const removeCategory = action(rC, "removeCategory");
+// Re-export from features for backward compatibility
+export {
+  getItemCategories,
+  getCategoryItems,
+  assignCategory,
+  removeCategory,
+} from "~/features/item-category";
