@@ -1,7 +1,7 @@
 import { useSubmission, type RouteDefinition } from "@solidjs/router";
 import { getUser } from "~/api";
-import { createStorage } from "~/api/storage";
-import { StorageForm } from "~/components/storage/StorageForm";
+import { createStorage } from "~/features/storage";
+import { StorageForm } from "~/features/storage/StorageForm";
 
 export const route = {
   preload() {
