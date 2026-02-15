@@ -16,7 +16,8 @@
     "@solidjs/testing-library": "^0.8.10",
     "@types/node": "^24.7.0",
     "@types/pg": "^8.16.0",
-    "drizzle-kit": "^0.22.7"
+    "drizzle-kit": "^0.22.7",
+    "scaffdog": "^4.1.0"
   },
   "dependencies": {
     "@ark-ui/solid": "^5.31.0",
