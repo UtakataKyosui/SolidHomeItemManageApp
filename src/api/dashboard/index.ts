@@ -1,4 +1,2 @@
-import { query } from "@solidjs/router";
-import { getDashboardStats as gDS } from "./server";
-
-export const getDashboardStats = query(gDS, "dashboardStats");
+// Re-export from features for backward compatibility
+export { getDashboardStats } from "~/features/dashboard";

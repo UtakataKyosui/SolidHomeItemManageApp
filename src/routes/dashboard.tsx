@@ -2,7 +2,7 @@ import { createAsync, A, useNavigate, type RouteDefinition } from "@solidjs/rout
 import { Show, For, createEffect } from "solid-js";
 import { css } from "styled-system/css";
 import { getUser, logout } from "~/api";
-import { getDashboardStats } from "~/api/dashboard";
+import { getDashboardStats } from "~/features/dashboard";
 import { Button } from "~/components/ui/button";
 import * as Card from "~/components/ui/card";
 import { Package, FolderOpen, Archive, Box } from "lucide-solid";
