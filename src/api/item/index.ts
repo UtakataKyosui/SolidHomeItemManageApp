@@ -1,14 +1,8 @@
-import { action, query } from "@solidjs/router";
-import {
-  getItems as gI,
-  getItem as gIi,
-  createItem as cI,
-  updateItem as uI,
-  deleteItem as dI,
-} from "./server";
-
-export const getItems = query(gI, "items");
-export const getItem = query(gIi, "item");
-export const createItem = action(cI, "createItem");
-export const updateItem = action(uI, "updateItem");
-export const deleteItem = action(dI, "deleteItem");
+// Re-export from features for backward compatibility
+export {
+  getItems,
+  getItem,
+  createItem,
+  updateItem,
+  deleteItem,
+} from "~/features/item";

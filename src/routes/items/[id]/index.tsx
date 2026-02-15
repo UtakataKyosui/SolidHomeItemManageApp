@@ -2,11 +2,11 @@ import { createAsync, useParams, A, type RouteDefinition } from "@solidjs/router
 import { Show, For, createSignal } from "solid-js";
 import { css } from "styled-system/css";
 import { getUser } from "~/api";
-import { getItem } from "~/api/item";
-import { getItemCategories, assignCategory, removeCategory } from "~/api/item-category";
-import { getItemBoxes, assignBox, removeBox } from "~/api/item-box";
-import { getAllBoxesWithStorage } from "~/api/box";
-import { getCategories } from "~/api/category";
+import { getItem } from "~/features/item";
+import { getItemCategories, assignCategory, removeCategory } from "~/features/item-category";
+import { getItemBoxes, assignBox, removeBox } from "~/features/item-box";
+import { getAllBoxesWithStorage } from "~/features/box";
+import { getCategories } from "~/features/category";
 import { Button } from "~/components/ui/button";
 import { IconButton } from "~/components/ui/icon-button";
 import * as Card from "~/components/ui/card";
