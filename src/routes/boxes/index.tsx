@@ -2,7 +2,7 @@ import { createAsync, A, type RouteDefinition } from "@solidjs/router";
 import { For, Show } from "solid-js";
 import { css } from "styled-system/css";
 import { getUser } from "~/api";
-import { getAllBoxesWithStorage, deleteBox } from "~/api/box";
+import { getAllBoxesWithStorage, deleteBox } from "~/features/box";
 import { Button } from "~/components/ui/button";
 import { IconButton } from "~/components/ui/icon-button";
 import * as Table from "~/components/ui/table";
