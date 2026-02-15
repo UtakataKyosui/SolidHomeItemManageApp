@@ -49,3 +49,49 @@ bunx @park-ui/cli add <コンポーネント名>
 （例: `bunx @park-ui/cli add dialog`）
 
 Park UI に存在しない場合のみ自作する。
+
+## コード分離（scaffdog）
+
+新しい機能を追加する際は、scaffdog を使って関心事が分離されたファイル構成を生成すること。
+
+### 生成コマンド
+
+```bash
+bunx scaffdog generate feature
+```
+
+### 生成されるファイル構成
+
+```
+src/features/{機能名}/
+├── types.ts          # 型定義、入力型、フォームパーサー
+├── handlers.ts       # サーバー関数（"use server"）、CRUD操作
+├── hooks.ts          # createAsync、useSubmission、派生状態
+├── {Name}List.tsx    # 一覧コンポーネント（テーブル＋削除ダイアログ）
+├── {Name}Form.tsx    # フォームコンポーネント（作成/編集）
+└── {Name}Detail.tsx  # 詳細コンポーネント
+```
+
+### ルートファイルの書き方
+
+ルートファイル（`src/routes/`）はシンラッパーとして、features からインポートする:
+
+```tsx
+import { useItemList } from "~/features/item/hooks";
+import { ItemList } from "~/features/item/ItemList";
+
+export default function ItemListPage() {
+  const { items } = useItemList();
+  return <ItemList items={items} />;
+}
+```
+
+### 既存コードのリファクタリング
+
+既存の混在ファイルを分離する場合は、`code-separator` SubAgent を使用できる。
+
+### scaffdog の設定
+
+- 設定ファイル: `.scaffdog/config.ts`
+- テンプレートデリミタ: `<% %>` （JSX の `{{ }}` との衝突を回避）
+- テンプレート: `.scaffdog/feature.md`
