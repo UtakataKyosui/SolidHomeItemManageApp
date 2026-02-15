@@ -1,7 +1,7 @@
 import { useSubmission, type RouteDefinition } from "@solidjs/router";
 import { getUser } from "~/api";
-import { createCategory } from "~/api/category";
-import { CategoryForm } from "~/components/category/CategoryForm";
+import { createCategory } from "~/features/category";
+import { CategoryForm } from "~/features/category/CategoryForm";
 
 export const route = {
   preload() {

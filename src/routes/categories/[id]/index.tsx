@@ -2,8 +2,8 @@ import { createAsync, useParams, A, type RouteDefinition } from "@solidjs/router
 import { Show, For } from "solid-js";
 import { css } from "styled-system/css";
 import { getUser } from "~/api";
-import { getCategory } from "~/api/category";
-import { getCategoryItems } from "~/api/item-category";
+import { getCategory } from "~/features/category";
+import { getCategoryItems } from "~/features/item-category";
 import { Button } from "~/components/ui/button";
 import * as Card from "~/components/ui/card";
 import * as Table from "~/components/ui/table";

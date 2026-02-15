@@ -1,8 +1,8 @@
 import { createAsync, useParams, useSubmission, type RouteDefinition } from "@solidjs/router";
 import { Show } from "solid-js";
 import { getUser } from "~/api";
-import { getCategory, updateCategory } from "~/api/category";
-import { CategoryForm } from "~/components/category/CategoryForm";
+import { getCategory, updateCategory } from "~/features/category";
+import { CategoryForm } from "~/features/category/CategoryForm";
 
 export const route = {
   preload() {
